@@ -8,17 +8,17 @@
 ## multi-scale occupancy model, both spp, all-years dataset
 ##
 ## =================================================
+#setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi-scale-occu-oss")
 
-# look at yearly effects next?
 
 # Load packages and data
   library(ggplot2)
   library(dplyr)
-
+  
   load("data/msc-enes-data-workspace.RData")
   load("data/multiscale_output_and_data_072125_enes_small.RData")
   E = a2
-  load("data/multiscale_output_072525_oss_small.RData")
+  load("data/multiscale_output_and_data_072525_oss_small.RData")
   O = a2
   
 # Estimates
