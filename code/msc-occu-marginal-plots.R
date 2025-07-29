@@ -8,13 +8,15 @@
 ## multi-scale occupancy model, both spp, all-years dataset
 ##
 ## =================================================
-#setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi-scale-occu-oss")
+setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi-scale-occu-oss")
 
 
 # Load packages and data
   library(ggplot2)
   library(dplyr)
-  
+
+  e_covs <- read.csv("data/enes.prepost.multiscale.occu.csv") 
+  o_covs <- read.csv("data/oss.prepost.multiscale.occu.csv")
   load("data/msc-enes-data-workspace.RData")
   load("data/multiscale_output_and_data_072125_enes_small.RData")
   E = a2
@@ -25,8 +27,12 @@
   summary(E)
   summary(O)
 
+# Combine
+  E2 = runjags::combine.mcmc(E)
+  O2 = runjags::combine.mcmc(O)   
   
-# Quick trt effect on occupancy barplot
+  
+##### Quick trt effect on occupancy barplot ---------------------
   logit_psi <- c(
     UU = summary(O)$statistics["beta0.psi", "Mean"],
     BU = summary(O)$statistics["beta0.psi", "Mean"] + summary(O)$statistics["beta1.psi.BU", "Mean"],
@@ -50,10 +56,7 @@
  
 # This example produces marginal estimates of occupancy for different treatment types
   
-  E2 = runjags::combine.mcmc(E)
-  O2 = runjags::combine.mcmc(O) 
-  
-  b <- O2 ###################### choose species here
+  b <- E2 ###################### choose species here
   
   # number of posterior samples
   n.samples = nrow(b) # why is this such a weird number?
@@ -218,15 +221,13 @@
  
 # Plot
   
-  #tiff("forest_and_fire_treatment_salamnder_psi_preds_withUU.tif", units="in", width=4, height=3, res=500)
-  
-  ggplot(alltreatment_preds, aes(x = treatment, y = predicted)) +
+  p <-  ggplot(alltreatment_preds, aes(x = treatment, y = predicted)) +
     geom_point(position = position_dodge(0.5), size = 1.5)+ geom_errorbar(aes(ymin = LCI, ymax = UCI), width = 0.1, position = position_dodge(0.5))+
     ylab(bquote("Predicted "*psi~""))+ xlab("Treatment Group")+
-    labs(title="Predicted Occupancy Estimates by Treatment - OSS") +
+    labs(title="Predicted Occupancy Estimates by Treatment - ENES") +
     theme_classic()
-  #dev.off()  
   
+  ggsave("figures/e-trt-psi-preds.png", plot = p, dpi = 500)  
   
   
 #### Coefficient Plot ----------------------------------------------------------
@@ -289,7 +290,7 @@
     geom_point() +
     geom_errorbarh(aes(xmin = LCI, xmax = UCI), height = 0.2) +
     geom_vline(xintercept = 0, linetype = "dashed") +
-    facet_wrap(~ Submodel,scales = "free_y", ncol=1) +
+    facet_wrap(~ Submodel, scales = "free_y", ncol=1) +
     labs(title = "Posterior Coefficient Estimates",
          x = "Estimate (logit scale)",
          y = "Parameter") 
@@ -300,9 +301,9 @@
 # Isolate the effect of a single covariate by varying it across a range,
 # holding everything else constant
   
-  # a=runjags::combine.mcmc(O2)
-  b <- O2 ###################### choose species here
-  # n.samples = nrow(b) # number of posterior samples
+  b <- E2    # # # # # # choose species here # # # # # #
+  dat <- e_covs    # # # # # # choose species here # # # # # #
+  n.samples = nrow(b) # number of posterior samples
   
   
 # Latitude on psi
@@ -353,18 +354,28 @@
   
   # stuff into df
   lat_psi_preds <- data.frame(predicted = lat_psi_means, 
-                             lat_untransf = lat_data,
+                             cov_zsc = lat_data,
                              LCI = lat_psi_CIs[1,],
                              UCI = lat_psi_CIs[2,])
   
-  ggplot(lat_psi_preds, aes(x = lat_untransf, y = predicted)) +
-    geom_line() +
-    geom_ribbon(aes(ymin = LCI, ymax = UCI), alpha = 0.2) +
-    ylab(bquote("Predicted "*psi~"")) +
-    xlab("Latitude (standardized)") +
-    labs(title = "Marginal Effect of Latitude on Occupancy") +
-    theme_classic()
+  # add back-transformed values to df (just in case i want them later)
+  lat_mean  <- mean(dat$lat, na.rm = TRUE)
+  lat_sd    <- sd(dat$lat, na.rm = TRUE)
+  lat_psi_preds$cov_value  <- lat_psi_preds$cov_zsc  * lat_sd  + lat_mean
   
+  
+  p.lat <- ggplot(lat_psi_preds, aes(x = cov_value, y = predicted)) +
+        geom_line() +
+        geom_ribbon(aes(ymin = LCI, ymax = UCI), alpha = 0.2) +
+        ylab(bquote("Predicted "*psi~"")) +
+        xlab("Latitude") +
+        labs(title = "Marginal Effect of Latitude on Occupancy") +
+        theme_classic() +
+        theme(legend.position = "none",
+              strip.text = element_text(size = 12, face = "bold"),
+              plot.title = element_text(hjust = 0.5, face = "bold"))  
+  
+  ggsave("figures/e-lat-effect.png", plot = p.lat, dpi = 300)
   
   
 # Longitude on psi
@@ -412,17 +423,27 @@
   
   # stuff into df
   lon_psi_preds <- data.frame(predicted = lon_psi_means, 
-                              lon_untransf = lon_data,
+                              cov_zsc = lon_data,
                               LCI = lon_psi_CIs[1,],
                               UCI = lon_psi_CIs[2,])
   
-  ggplot(lon_psi_preds, aes(x = lon_untransf, y = predicted)) +
-    geom_line() +
-    geom_ribbon(aes(ymin = LCI, ymax = UCI), alpha = 0.2) +
-    ylab(bquote("Predicted "*psi~"")) +
-    xlab("Longitude (standardized)") +
-    labs(title = "Marginal Effect of Longitude on Occupancy") +
-    theme_classic()
+  # add back-transformed values to df (just in case i want them later)
+  long_mean  <- mean(dat$long, na.rm = TRUE)
+  long_sd    <- sd(dat$long, na.rm = TRUE)
+  lon_psi_preds$cov_value  <- lon_psi_preds$cov_zsc  * long_sd  + long_mean
+  
+  p.long <- ggplot(lon_psi_preds, aes(x = cov_value, y = predicted)) +
+        geom_line() +
+        geom_ribbon(aes(ymin = LCI, ymax = UCI), alpha = 0.2) +
+        ylab(bquote("Predicted "*psi~"")) +
+        xlab("Longitude") +
+        labs(title = "Marginal Effect of Longitude on Occupancy") +
+        theme_classic() +
+        theme(legend.position = "none",
+              strip.text = element_text(size = 12, face = "bold"),
+              plot.title = element_text(hjust = 0.5, face = "bold"))  
+  
+  ggsave("figures/e-long-effect.png", plot = p.long, dpi = 300)
   
   
   
@@ -471,18 +492,28 @@
   
   # stuff into df
   elev_psi_preds <- data.frame(predicted = elev_psi_means, 
-                              elev_untransf = elev_data,
+                               cov_zsc = elev_data,
                               LCI = elev_psi_CIs[1,],
                               UCI = elev_psi_CIs[2,])
   
-  ggplot(elev_psi_preds, aes(x = elev_untransf, y = predicted)) +
-    geom_line() +
-    geom_ribbon(aes(ymin = LCI, ymax = UCI), alpha = 0.2) +
-    ylab(bquote("Predicted "*psi~"")) +
-    xlab("Elev (standardized)") +
-    labs(title = "Marginal Effect of Elevation on Occupancy") +
-    theme_classic()
+  # add back-transformed values to df (just in case i want them later)
+  elev_mean  <- mean(dat$elev, na.rm = TRUE)
+  elev_sd    <- sd(dat$elev, na.rm = TRUE)
+  elev_psi_preds$cov_value  <- round(elev_psi_preds$cov_zsc  * elev_sd  + elev_mean)
   
+  
+  p.elev <- ggplot(elev_psi_preds, aes(x = cov_value, y = predicted)) +
+        geom_line() +
+        geom_ribbon(aes(ymin = LCI, ymax = UCI), alpha = 0.2) +
+        ylab(bquote("Predicted "*psi~"")) +
+        xlab("Elevation (m)") +
+        labs(title = "Marginal Effect of Elevation on Occupancy") +
+        theme_classic() +
+        theme(legend.position = "none",
+              strip.text = element_text(size = 12, face = "bold"),
+              plot.title = element_text(hjust = 0.5, face = "bold"))  
+  
+  ggsave("figures/e-elev-effect.png", plot = p.elev, dpi = 300)
   
   
 # Downed Wood effect on Plot Use
@@ -517,25 +548,34 @@
   
   # stuff into df
   DW_psi_preds <- data.frame(predicted = DW_means, 
-                               DW_untransf = DW_data,
+                             cov_zsc = DW_data,
                                LCI = DW_CIs[1,],
                                UCI = DW_CIs[2,])
   
-  ggplot(DW_psi_preds, aes(x = DW_untransf, y = predicted)) +
+  # add back-transformed values to df (just in case i want them later)
+  dw_mean  <- mean(dat$DW, na.rm = TRUE)
+  dw_sd    <- sd(dat$DW, na.rm = TRUE)
+  DW_psi_preds$cov_value  <- round(DW_psi_preds$cov_zsc  * dw_sd  + dw_mean, 2)
+  
+  
+  p.dw <- ggplot(DW_psi_preds, aes(x = cov_value, y = predicted)) +
     geom_line() +
     geom_ribbon(aes(ymin = LCI, ymax = UCI), alpha = 0.2) +
     ylab(bquote("Predicted "*theta~"")) +
     xlab("Downed Wood Count") +
     labs(title = "Marginal Effect of Downed Wood on Plot Use") +
-    theme_classic()  
+    theme_classic() +
+    theme(legend.position = "none",
+          strip.text = element_text(size = 12, face = "bold"),
+          plot.title = element_text(hjust = 0.5, face = "bold"))   
   
-  
+  ggsave("figures/e-dw-effect.png", plot = p.dw, dpi = 300)
   
 # Temp effect on Detection
   
   # do i need to include the yearly detection intercept?
-  # created an average across years here (they look almost identical)
-  alpha0_mean <- rowMeans(b[, grep("alpha0.year\\[", colnames(b))])
+  # created an average across years here (they look almost identical) -  no i dont
+  # alpha0_mean <- rowMeans(b[, grep("alpha0.year\\[", colnames(b))])
   
   # range
   r<- range(temp.3D)
@@ -550,8 +590,8 @@
   for (i in 1:n.samples){
     for (j in 1:length(temp_data)){
       logit_temp[i,j] = 
-        alpha0_mean[i] +
-        #b[,'alpha0'][[i]] + 
+        # alpha0_mean[i] +
+        b[,'alpha0'][[i]] + 
         b[,'alpha1'][[i]] * temp_data[j] + 
         b[,'alpha2'][[i]] * temp_data[j]^2 
     }}
@@ -569,17 +609,65 @@
   
   # stuff into df
   temp_preds <- data.frame(predicted = temp_means, 
-                             temp_untransf = temp_data,
+                             cov_zsc = temp_data,
                              LCI = temp_CIs[1,],
                              UCI = temp_CIs[2,])
   
-  ggplot(temp_preds, aes(x = temp_untransf, y = predicted)) +
-    geom_line() +
-    geom_ribbon(aes(ymin = LCI, ymax = UCI), alpha = 0.2) +
-    ylab(bquote("Predicted p")) +
-    xlab("Temperature") +
-    labs(title = "Marginal Effect of Temp on Detection") +
-    theme_classic()  
+  # add back-transformed values to df (just in case i want them later)
+  temp_mean  <- mean(dat$temp, na.rm = TRUE)
+  temp_sd    <- sd(dat$temp, na.rm = TRUE)
+  temp_preds$cov_value  <- round(temp_preds$cov_zsc  * temp_sd  + temp_mean, 2)
   
   
-
+  p.temp <- ggplot(temp_preds, aes(x = cov_value, y = predicted)) +
+        geom_line() +
+        geom_ribbon(aes(ymin = LCI, ymax = UCI), alpha = 0.2) +
+        ylab(bquote("Predicted p")) +
+        xlab("Temperature C") +
+        labs(title = "Marginal Effect of Temperature on Detection") +
+        theme_classic() +
+        theme(legend.position = "none",
+              strip.text = element_text(size = 12, face = "bold"),
+              plot.title = element_text(hjust = 0.5, face = "bold")) 
+  
+  
+  ggsave("figures/e-temp-effect.png", plot = p.temp, dpi = 300)
+  
+  
+  
+##### One plot to rule them all -----------------------------------------------
+  
+  # add covariate col and combine all occu covariate preds into one df
+  lat_psi_preds$covariate <- "lat"
+  lon_psi_preds$covariate <- "long"  
+  elev_psi_preds$covariate <- "elev"  
+  
+  occu_cov_preds <- rbind(lat_psi_preds, lon_psi_preds, elev_psi_preds)  
+  occu_cov_preds$covariate <- factor(occu_cov_preds$covariate,
+                                     levels = c("elev", "lat", "long"),
+                                     labels = c("Elevation", "Latitude", "Longitude"))
+ 
+   
+  p <- ggplot(occu_cov_preds, aes(x = cov_zsc, y = predicted,
+                             color = covariate, fill = covariate)) +
+    geom_line(size = 1) +
+    geom_ribbon(aes(ymin = LCI, ymax = UCI), alpha = 0.2, color = NA) +
+    ylab(bquote("Predicted "*psi~"")) +
+    facet_grid(rows = vars(covariate)) +
+    labs(title = "Predicted Occupancy Across Environmental Gradients - ENES",
+         x = "Z-Scored Covariate Value",
+         y = expression("Predicted "*psi)) +
+    scale_color_brewer(palette = "Dark2") +
+    scale_fill_brewer(palette = "Dark2") +
+    theme_classic() +
+    theme(legend.position = "none",
+          strip.text = element_text(size = 12, face = "bold"),
+          plot.title = element_text(hjust = 0.5, face = "bold"))
+  
+  
+  ggsave("figures/e-psi-cov-effects.png", plot = p, dpi = 300)
+  
+  
+  
+  
+  
