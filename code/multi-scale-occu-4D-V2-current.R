@@ -24,8 +24,8 @@
   #oss <- read.csv("oss.prepost.multiscale.occu.csv")
 
 # JW data path  
-  enes <- read.csv("data/occupancy/enes.prepost.multiscale.occu.csv") 
-  oss <- read.csv("data/occupancy/oss.prepost.multiscale.occu.csv")
+  enes <- read.csv("data/enes.prepost.multiscale.occu.csv") 
+  oss <- read.csv("data/oss.prepost.multiscale.occu.csv")
 
 # choose enes or oss 
   dat = oss
@@ -93,6 +93,7 @@
   str(y.4D)
   sum(y.4D, na.rm=TRUE)
   sum(y.4D == 0, na.rm=TRUE)
+  E.4D = y.4D
   
 
 # OSS detection data ------------------------------------------------------------
@@ -114,7 +115,7 @@
   str(y.4D)
   sum(y.4D, na.rm=TRUE)
   sum(y.4D == 0, na.rm=TRUE)
-  
+  O.4D = y.4D
   
 # Covariates ------------------------------------------------------------
   
@@ -275,8 +276,8 @@
 ## End formatting code ---------------------------------------------------------  
 ## Model   ---------------------------------------------------------------------
   
-# set y to current dataset
-y = y.4D
+# set y to current dataset       # # # # # # choose species here # # # # # #
+y = O.4D
 nyears = dim(y.4D)[4] # years
 
 

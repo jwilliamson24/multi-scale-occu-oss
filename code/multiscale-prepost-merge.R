@@ -19,19 +19,19 @@
 ## load data ------------------------------------------------------------------------
 
 # 2023-2024 covariate data
-  site.lvl <- read.csv("data/covariate matrices/site_level_matrix.csv") # site level covs
-  subplot.lvl <- read.csv("data/covariate matrices/subplot.complete.new.csv") # subplot level covs
+  site.lvl <- read.csv("data/site_level_matrix.csv") # site level covs
+  subplot.lvl <- read.csv("data/subplot.complete.new.csv") # subplot level covs
   
 # pre-fire lat/long/elev data
-  geo.data.pre <- read.csv("data/prefire-shp-attributes/geo-data-all-plots-prefire.csv", row.names = 1)
+  geo.data.pre <- read.csv("data/geo-data-all-plots-prefire.csv", row.names = 1)
   
 # from pre-fire-matrices.R
-  xo <- read.csv("data/occupancy/dets.o.pre.csv") # pre-fire oss
-  xe <- read.csv("data/occupancy/dets.e.pre.csv") # pre-fire enes
+  xo <- read.csv("data/dets.o.pre.csv") # pre-fire oss
+  xe <- read.csv("data/dets.e.pre.csv") # pre-fire enes
   
 # from occu-matrices-postfire.R
-  dets.o <- read.csv("data/occupancy/dets.o.post.csv") # post-fire oss
-  dets.e <- read.csv("data/occupancy/dets.e.post.csv") # post-fire enes
+  dets.o <- read.csv("data/dets.o.post.csv") # post-fire oss
+  dets.e <- read.csv("data/dets.e.post.csv") # post-fire enes
 
   
 ## format data -----------------------------------------------------------------------
