@@ -396,23 +396,28 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
   both_preds <- rbind(alltreatment_preds, alltreatment_preds2)
   
   p <- ggplot(both_preds, aes(x = treatment, y = predicted, color = species, shape = species)) +
-    geom_point(position = position_dodge(0.5), size = 2) +
-    geom_errorbar(aes(ymin = LCI, ymax = UCI), width = 0.1, position = position_dodge(0.5)) +
+    geom_point(position = position_dodge(0.5), size = 2.8) +
+    geom_errorbar(aes(ymin = LCI, ymax = UCI), width = 0.1, size = 0.8, position = position_dodge(0.5)) +
     scale_color_manual(values = c("ENES" = "#F95738", "OSS" = "#00798C")) +
     ylab(bquote("Predicted "*psi~"")) +
     xlab("Treatment Group") +
     labs(title = "Predicted Occupancy by Treatment and Species") +
     theme_classic() +
-    theme(legend.position = "bottom",
-          strip.text = element_text(size = 12, face = "bold"),
-          plot.title = element_text(hjust = 0.5, face = "bold")) 
+    theme(
+      axis.text.x = element_text(size = 14),
+      axis.text.y = element_text(size = 14),
+      axis.title.x = element_text(size = 14),
+      axis.title.y = element_text(size = 14),
+      legend.position = "bottom",
+      strip.text = element_text(size = 15, face = "bold"),
+      plot.title = element_text(hjust = 0.5, face = "bold"))
   
   ggsave("figures/both-spp-trt-psi-preds.png", plot = p, dpi = 500)
   
   
 ##### Coefficient Plot ----------------------------------------------------------
   
-  summary_table <- summary(O) # # # # # choose species # # # # #
+  summary_table <- summary(E) # # # # # choose species # # # # #
   
   params_to_plot <- c("beta0.psi", "beta0.theta", "alpha0", 
                       "beta1.psi.BU", "beta2.psi.HB", "beta3.psi.HU", "beta4.psi.BS", 
@@ -466,14 +471,26 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
                               "alpha2" = "Quadratic Temp")
   
   
-  ggplot(coef_df, aes(x = Mean, y = reorder(Parameter, Mean))) +
+  p <- ggplot(coef_df, aes(x = Mean, y = reorder(Parameter, Mean))) +
     geom_point() +
     geom_errorbarh(aes(xmin = LCI, xmax = UCI), height = 0.2) +
     geom_vline(xintercept = 0, linetype = "dashed") +
     facet_wrap(~ Submodel, scales = "free_y", ncol=1) +
-    labs(title = "Posterior Coefficient Estimates",
+    labs(title = "Posterior Coefficient Estimates - OSS",
          x = "Estimate (logit scale)",
-         y = "Parameter") 
+         y = "Parameter") +
+    theme(
+      axis.text.x = element_text(size = 12),
+      axis.text.y = element_text(size = 12),
+      axis.title.x = element_text(size = 13),
+      axis.title.y = element_text(size = 13),
+      legend.position = "none",
+      strip.text = element_text(size = 13, face = "bold"),
+      plot.title = element_text(face = "bold")
+    )
+  
+  
+  ggsave("figures/o-coeff-plot-renamed-params.png", plot = p, dpi = 300)
   
   
 ##### Marginal Psi Plots - ENES -------------------------------------------  
@@ -987,10 +1004,15 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
     scale_color_manual(values = c("ENES" = "#F95738", "OSS" = "#00798C")) +
     scale_fill_manual(values = c("ENES" = "#F95738", "OSS" = "#00798C")) +
     theme_classic() +
-    theme(legend.position = "bottom",
-          strip.text = element_text(size = 12, face = "bold"),
-          plot.title = element_text(hjust = 0.5, face = "bold")) 
-  
+    theme(
+      axis.text.x = element_text(size = 14),
+      axis.text.y = element_text(size = 14),
+      axis.title.x = element_text(size = 14),
+      axis.title.y = element_text(size = 14),
+      legend.position = "bottom",
+      strip.text = element_text(size = 15, face = "bold"),
+      plot.title = element_text(hjust = 0.5, face = "bold"))
+
   ggsave("figures/both-spp-cov-psi-preds.png", plot = p, dpi = 500)
   
 ##### DW and Temp - ENES ------------------------------------------  
@@ -1249,7 +1271,7 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
   
   p1 <- ggplot(both_dw, aes(x = cov_value, y = predicted, 
                       color = species, fill = species, shape = species)) +
-    geom_line(size = 1) +
+    geom_line(size = 1.3) +
     geom_ribbon(aes(ymin = LCI, ymax = UCI), alpha = 0.2, color = NA) +
     scale_color_manual(values = c("ENES" = "#F95738", "OSS" = "#00798C")) +
     scale_fill_manual(values = c("ENES" = "#F95738", "OSS" = "#00798C")) +
@@ -1257,17 +1279,21 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
     xlab("Downed Wood Count") +
     labs(title = "Marginal Effect of Downed Wood on Usage") +
     theme_classic() +
-    theme(legend.position = "none",
-          strip.text = element_text(size = 12, face = "bold"),
-          plot.title = element_text(hjust = 0.5, face = "bold")) 
-
+    theme(
+      axis.text.x = element_text(size = 14),
+      axis.text.y = element_text(size = 14),
+      axis.title.x = element_text(size = 14),
+      axis.title.y = element_text(size = 14),
+      legend.position = "none",
+      strip.text = element_text(size = 15, face = "bold"),
+      plot.title = element_text(hjust = 0.5, face = "bold"))
   
 # Combined Temp both spp  
   both_temp <- rbind(temp_preds_e, temp_preds_o)
   
   p2 <- ggplot(both_temp, aes(x = cov_value, y = predicted, 
                       color = species, fill = species, shape = species)) +
-    geom_line(size = 1) +
+    geom_line(size = 1.3) +
     geom_ribbon(aes(ymin = LCI, ymax = UCI), alpha = 0.2, color = NA) +
     scale_color_manual(values = c("ENES" = "#F95738", "OSS" = "#00798C")) +
     scale_fill_manual(values = c("ENES" = "#F95738", "OSS" = "#00798C")) +
@@ -1275,9 +1301,14 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
     xlab("Temperature (C)") +
     labs(title = "Marginal Effect of Temperature on Detection") +
     theme_classic() +
-    theme(legend.position = "bottom",
-          strip.text = element_text(size = 12, face = "bold"),
-          plot.title = element_text(hjust = 0.5, face = "bold")) 
+    theme(
+      axis.text.x = element_text(size = 14),
+      axis.text.y = element_text(size = 14),
+      axis.title.x = element_text(size = 14),
+      axis.title.y = element_text(size = 14),
+      legend.position = "bottom",
+      strip.text = element_text(size = 15, face = "bold"),
+      plot.title = element_text(hjust = 0.5, face = "bold"))
   
 # Stack combined plots
   p3 <- p1 / p2
