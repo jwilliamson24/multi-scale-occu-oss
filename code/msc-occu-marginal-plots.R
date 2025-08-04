@@ -417,7 +417,7 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
   
 ##### Coefficient Plot ----------------------------------------------------------
   
-  summary_table <- summary(E) # # # # # choose species # # # # #
+  summary_table <- summary(O) # # # # # choose species # # # # #
   
   params_to_plot <- c("beta0.psi", "beta0.theta", "alpha0", 
                       "beta1.psi.BU", "beta2.psi.HB", "beta3.psi.HU", "beta4.psi.BS", 

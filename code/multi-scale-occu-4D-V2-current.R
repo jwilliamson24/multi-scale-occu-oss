@@ -33,17 +33,16 @@
 # Data Formatting to 3D and 4D ------------------------------------------------------
 
   # formatting the data in script to see if it helps spot issue 
+  
   unique(dat$site_id)
   unique(dat$year)
   plotnames=sort(unique(dat$subplot))
   sites=sort(unique(dat$site_id))
-  years=sort(unique(dat$year))
+  years=sort(unique(dat$year)) # year formatting in chronological order
   n.sites=length(sites)
   n.years=length(years)
-  table(dat$year)
+  table(dat$year) 
   sum(table(dat$year))
-  # make year formatting in chronological order!!!
-  ######## RERUN after check date order and site numbers (max of 82).   # has this been resolved?
 
 
   # how many plots at each site
