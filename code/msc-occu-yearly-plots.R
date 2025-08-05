@@ -23,176 +23,264 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
   load("data/multiscale_output_and_data_072525_oss_small.RData")
   O = a2
 
-# Estimates
+# Combine
   summary(E)
   summary(O)
-
-# Combine
   E2 = runjags::combine.mcmc(E)
   O2 = runjags::combine.mcmc(O)   
 
 
-##### Plot predicted occupancy just for each year - ignore this plot its not useful ---------------------
+#### Plot predicted occupancy for each year and treatment 
   
-  dat <- as.matrix(E)  # # choose species # #
+  b <- O2  # # # # choose species # # # #
   
-  # Extract all samples for each year intercept (beta0.psi.year[t])
-  years <- 1:9
-  year_psi_preds <- lapply(years, function(t) plogis(dat[, paste0("beta0.psi.year[", t, "]")]))
-  year_means <- sapply(year_psi_preds, mean)
-  year_CIs <- sapply(year_psi_preds, function(x) quantile(x, probs = c(0.025, 0.975)))
-  
-  # Put into data frame for ggplot
-  e_year_preds_df <- data.frame(
-    year = years,
-    predicted = year_means,
-    LCI = year_CIs[1, ],
-    UCI = year_CIs[2, ]
-  )
-  
-  # Plot
-  ggplot(e_year_preds_df, aes(x = year, y = predicted)) +
-    geom_point(size = 2) +
-    geom_errorbar(aes(ymin = LCI, ymax = UCI), width = 0.2) +
-    ylab(expression("Predicted "*psi*"")) +
-    xlab("Year") +
-    ggtitle("Predicted Occupancy by Year - ENES") +
-    theme_classic()
-
-
-
-##### Plot predicted occupancy for each year and treatment ---------------------
-  
-##### Method 1 ---------------------  
-  
-  dat <- as.matrix(E)
-  
-  treatments <- c("UU", "BU", "HB", "HU", "BS")
-  years <- 1:9
-  
-  # Create a function to compute logit_psi for a given treatment and year
-  get_psi_preds <- function(treatment, year_index) {
-    # Extract posterior samples
-    beta0 <- dat[, "beta0.psi"]
-    psi_year <- dat[, paste0("beta0.psi.year[", year_index, "]")]
-    
-    # Set treatment coefficients (0 for control group)
-    beta_BU <- ifelse(treatment == "BU", dat[, "beta1.psi.BU"], 0)
-    beta_HB <- ifelse(treatment == "HB", dat[, "beta2.psi.HB"], 0)
-    beta_HU <- ifelse(treatment == "HU", dat[, "beta3.psi.HU"], 0)
-    beta_BS <- ifelse(treatment == "BS", dat[, "beta4.psi.BS"], 0)
-    
-    # Set covs to mean 
-    beta_lat <- 0
-    beta_lon <- 0
-    beta_elev <- 0
-    
-    # Compute linear predictor and transform to probability
-    logit_psi <- beta0 + psi_year + beta_BU + beta_HB + beta_HU + beta_BS
-    psi <- plogis(logit_psi)
-    
-    # combine
-    data.frame(
-      treatment = treatment,
-      year = year_index,
-      mean_psi = mean(psi),
-      lci = quantile(psi, 0.025),
-      uci = quantile(psi, 0.975)
-    )
-  }
-  
+  # number of posterior samples
+  n.samples = nrow(b)
   
   # dataframe with only valid year-treatment combos
   valid_combos <- data.frame(
     year = c(1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 8, 8, 8, 9, 9, 9, 9, 9),
     treatment = c("UU", "HU", "UU", "HU", "UU", "HU", "UU", "HU", 
-                  "UU", "HU", "UU", "HU", "UU", "HU", 
-                  "UU", "HU", "BU", "HB", "BS", "UU", "HU", "BU", "HB", "BS"))
-  
-  # predictions for each trt each year
-  all_preds1 <- do.call(rbind, lapply(1:max(years), function(t) {
-    # get treatments for this year
-    trts_for_year <- valid_combos$treatment[valid_combos$year == t]
-    
-    do.call(rbind, lapply(trts_for_year, function(trt) get_psi_preds(trt, t)))
-  }))
-  
-  row.names(all_preds1) <- NULL
-  head(all_preds1)
+                  "UU", "HU", "UU", "HU", "UU", "HU", # 2013-2019, just UU, HU
+                  "UU", "HU", "BU", "HB", "BS", # 2023, all trts
+                  "UU", "HU", "BU", "HB", "BS")) # 2024, all trts
   
   
-  # plot
-  ggplot(all_preds1, aes(x = factor(year), y = mean_psi, color = treatment, group = treatment)) +
-    geom_point(position = position_dodge(0.3), size = 2.5) +
-    geom_errorbar(aes(ymin = lci, ymax = uci), position = position_dodge(0.3), width = 0.2) +
-    labs(x = "Year", y = "Predicted Occupancy (ψ)", title = "Occupancy by Treatment and Year - E") +
-    theme_minimal()
+# BU    
+  # get years where BU treatment occurred
+  BU_years <- valid_combos[valid_combos$treatment == "BU", "year"]
+  BU_data <- BU_years
   
+  # set all other covs at mean
+  HB = 0
+  HU = 0
+  BS = 0
+  lat = 0
+  long = 0
+  elev = 0
   
+  # create matrices to stick estimates in
+  logit_psi = matrix(NA, n.samples, length(BU_data))
+  
+  # psi predictions for BU
+  # Sample from posterior for the sequence of values for BU - raw linear predictor for each MCMC sample 
+  for (i in 1:n.samples){
+    for (j in 1:length(BU_data)){
+      # create the linear predictors for dominant species
+      year_effect_col <- paste0("beta0.psi.year[", BU_data[j], "]")
+      logit_psi[i,j] = b[,year_effect_col][[i]] + b[,'beta1.psi.BU'][[i]] * 1 + 
+        b[,'beta2.psi.HB'][[i]] * HB + b[,'beta3.psi.HU'][[i]] * HU +
+        b[,'beta4.psi.BS'][[i]] * BS + b[,'beta5.psi.lat'][[i]] * lat +  
+        b[,'beta6.psi.lon'][[i]] * long +  b[,'beta8.psi.elev'][[i]] * elev 
+      }}
 
+  # create array 
+  BU_psi = matrix(NA, n.samples, length(BU_data))
+  
+  # transform psi off logit-scale back to probability scale - for each sample
+  BU_psi <- plogis(logit_psi)
+  
+  # calculate means and credible intervals - mean predicted occupancy probability across all posterior samples
+  BU_psi_means = colMeans(BU_psi) # - taking the mean of all samples (transformed occu prob)
+  BU_psi_CIs <- apply(BU_psi,2,quantile, c(0.025,0.975), na.rm=TRUE)
+  
+  # stuff into df
+  BU_psi_preds <- data.frame(year = BU_data, 
+                             predicted = BU_psi_means, 
+                             treatment = "BU",
+                             LCI = BU_psi_CIs[1,],
+                             UCI = BU_psi_CIs[2,]) 
   
   
-### Method 2 --------------------  
+# HB
+  # get years where HB treatment occurred
+  HB_years <- valid_combos[valid_combos$treatment == "HB", "year"]
+  HB_data <- HB_years
   
-  dat <- as.matrix(E)
+  # set all other covs at mean
+  BU = 0
+  HU = 0
+  BS = 0
+  lat = 0
+  long = 0
+  elev = 0
   
-  get_psi_preds <- function(treatment, year) {
-    # Intercept for year
-    beta0 <- dat[, "beta0.psi"] + dat[, paste0("beta0.psi.year[", year, "]")]
-    
-    # Treatment coefficients (UU is reference, so no added term)
-    treatment_term <- switch(treatment,
-                             "BU" = dat[, "beta1.psi.BU"],
-                             "HB" = dat[, "beta2.psi.HB"],
-                             "HU" = dat[, "beta3.psi.HU"],
-                             "BS" = dat[, "beta4.psi.BS"],
-                             0  # for "UU"
-    )
-    
-    # Add other covariates, set to mean (0)
-    cov_effect <- 0
-    cov_effect <- cov_effect +
-      0 * dat[, "beta8.psi.elev"] +
-      0 * dat[, "beta5.psi.lat"] +
-      0 * dat[, "beta6.psi.lon"]
-    
-    # transform
-    logit_psi <- beta0 + treatment_term + cov_effect
-    psi <- plogis(logit_psi)
-    
-    # combine
-    data.frame(
-      treatment = treatment,
-      year = year,
-      mean_psi = mean(psi),
-      lci = quantile(psi, 0.025),
-      uci = quantile(psi, 0.975)
-    )
-  }
+  # create matrices to stick estimates in
+  logit_psi = matrix(NA, n.samples, length(HB_data))
   
+  # psi predictions for HB
+  # Sample from posterior for the sequence of values for HB
+  for (i in 1:n.samples){
+    for (j in 1:length(HB_data)){
+      # create the linear predictors for dominant species
+      year_effect_col <- paste0("beta0.psi.year[", HB_data[j], "]")
+      logit_psi[i,j] = b[,year_effect_col][[i]] + b[,'beta1.psi.BU'][[i]] * BU + 
+        b[,'beta2.psi.HB'][[i]] * 1 + b[,'beta3.psi.HU'][[i]] * HU +
+        b[,'beta4.psi.BS'][[i]] * BS + b[,'beta5.psi.lat'][[i]] * lat +  
+        b[,'beta6.psi.lon'][[i]] * long +  b[,'beta8.psi.elev'][[i]] * elev 
+    }}
   
-  # dataframe with only valid year-treatment combos
-  valid_combos <- data.frame(
-    year = c(1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 8, 8, 8, 9, 9, 9, 9, 9),
-    treatment = c("UU", "HU", "UU", "HU", "UU", "HU", "UU", "HU", 
-                  "UU", "HU", "UU", "HU", "UU", "HU", 
-                  "UU", "HU", "BU", "HB", "BS", "UU", "HU", "BU", "HB", "BS"))
+  HB_psi = matrix(NA, n.samples, length(HB_data)) # create array 
+  HB_psi <- plogis(logit_psi) # transform psi off logit-scale back to probability scale
+  HB_psi_means = colMeans(HB_psi) # calculate means and credible intervals
+  HB_psi_CIs <- apply(HB_psi,2,quantile, c(0.025,0.975), na.rm=TRUE)
+  
+  HB_psi_preds <- data.frame(year = HB_data, 
+                             predicted = HB_psi_means, 
+                             treatment = "HB",
+                             LCI = HB_psi_CIs[1,],
+                             UCI = HB_psi_CIs[2,])
   
   
-  # preds for each trt each year
-  all_preds2 <- do.call(rbind, lapply(1:nrow(valid_combos), function(i) {
-    get_psi_preds(valid_combos$treatment[i], valid_combos$year[i])
-  }))
+# HU   
+  # get years where HU treatment occurred
+  HU_years <- valid_combos[valid_combos$treatment == "HU", "year"]
+  HU_data <- HU_years
+  
+  # set all other covs at mean
+  BU = 0
+  HB = 0
+  BS = 0
+  lat = 0
+  long = 0
+  elev = 0
+  
+  # create matrices to stick estimates in
+  logit_psi = matrix(NA, n.samples, length(HU_data))
+  
+  # psi predictions for HU
+  # Sample from posterior for the sequence of values for HB
+  for (i in 1:n.samples){
+    for (j in 1:length(HU_data)){
+      # create the linear predictors for dominant species
+      year_effect_col <- paste0("beta0.psi.year[", HU_data[j], "]")
+      logit_psi[i,j] = b[,year_effect_col][[i]] + b[,'beta1.psi.BU'][[i]] * BU + 
+        b[,'beta2.psi.HB'][[i]] * HB + b[,'beta3.psi.HU'][[i]] * 1 +
+        b[,'beta4.psi.BS'][[i]] * BS + b[,'beta5.psi.lat'][[i]] * lat +  
+        b[,'beta6.psi.lon'][[i]] * long +  b[,'beta8.psi.elev'][[i]] * elev 
+    }}
+  
+  HU_psi = matrix(NA, n.samples, length(HU_data))   # create array 
+  HU_psi <- plogis(logit_psi)   # transform psi off logit-scale back to probability scale
+  HU_psi_means = colMeans(HU_psi)   # calculate means and credible intervals
+  HU_psi_CIs <- apply(HU_psi,2,quantile, c(0.025,0.975), na.rm=TRUE)
+  
+  HU_psi_preds <- data.frame(year = HU_data, 
+                             predicted = HU_psi_means, 
+                             treatment = "HU",
+                             LCI = HU_psi_CIs[1,],
+                             UCI = HU_psi_CIs[2,])  
   
   
-  # plot
-  ggplot(all_preds2, aes(x = factor(year), y = mean_psi, color = treatment, group = treatment)) +
-    geom_point(position = position_dodge(0.3), size = 3) +
-    geom_errorbar(aes(ymin = lci, ymax = uci), width = 0.1, position = position_dodge(0.3)) +
-    labs(x = "Year", y = "Predicted occupancy (ψ)", color = "Treatment") +
-    theme_bw(base_size = 14)
+# BS
+  # Get years where BS treatment occurred
+  BS_years <- valid_combos[valid_combos$treatment == "BS", "year"]
+  BS_data <- BS_years
+  
+  # set all other covs at mean
+  BU = 0
+  HB = 0
+  HU = 0
+  lat = 0
+  long = 0
+  elev = 0
+  
+  # create matrices to stick estimates in
+  logit_psi = matrix(NA, n.samples, length(BS_data))
+  
+  # psi predictions for BS
+  # Sample from posterior for the sequence of values for BS 
+  for (i in 1:n.samples){
+    for (j in 1:length(BS_data)){
+      # create the linear predictors for dominant species
+      year_effect_col <- paste0("beta0.psi.year[", BS_data[j], "]")
+      logit_psi[i,j] = b[,year_effect_col][[i]] + b[,'beta1.psi.BU'][[i]] * BU + 
+        b[,'beta2.psi.HB'][[i]] * HB + b[,'beta3.psi.HU'][[i]] * HU +
+        b[,'beta4.psi.BS'][[i]] * 1 + b[,'beta5.psi.lat'][[i]] * lat +  
+        b[,'beta6.psi.lon'][[i]] * long +  b[,'beta8.psi.elev'][[i]] * elev 
+    }}
+  
+  BS_psi = matrix(NA, n.samples, length(BS_data))   # create array 
+  BS_psi <- plogis(logit_psi)   # transform psi off logit-scale back to probability scale
+  BS_psi_means = colMeans(BS_psi)  # calculate means and credible intervals
+  BS_psi_CIs <- apply(BS_psi,2,quantile, c(0.025,0.975), na.rm=TRUE)
+  
+  BS_psi_preds <- data.frame(year = BS_data, 
+                             predicted = BS_psi_means, 
+                             treatment = "BS",
+                             LCI = BS_psi_CIs[1,],
+                             UCI = BS_psi_CIs[2,])
+  
+  
+# UU  
+  # Get years where UU (untreated) occurred
+  UU_years <- valid_combos[valid_combos$treatment == "UU", "year"]
+  UU_data <- UU_years
+  
+  # set all other covs at mean (all treatments = 0 for untreated)
+  BU = 0
+  HB = 0
+  HU = 0
+  BS = 0
+  lat = 0
+  long = 0
+  elev = 0
+  
+  # create matrices to stick estimates in
+  logit_psi = matrix(NA, n.samples, length(UU_data))
+  
+  # psi predictions for UU
+  for (i in 1:n.samples){
+    for (j in 1:length(UU_data)){
+      # create the linear predictors for dominant species
+      year_effect_col <- paste0("beta0.psi.year[", UU_data[j], "]")
+      logit_psi[i,j] = b[,year_effect_col][[i]] + b[,'beta1.psi.BU'][[i]] * BU + 
+        b[,'beta2.psi.HB'][[i]] * HB + b[,'beta3.psi.HU'][[i]] * HU +
+        b[,'beta4.psi.BS'][[i]] * BS + b[,'beta5.psi.lat'][[i]] * lat +  
+        b[,'beta6.psi.lon'][[i]] * long +  b[,'beta8.psi.elev'][[i]] * elev 
+    }}
+  
+  UU_psi = matrix(NA, n.samples, length(UU_data))   # create array 
+  UU_psi <- plogis(logit_psi)   # transform psi off logit-scale back to probability scale
+  UU_psi_means = colMeans(UU_psi)  # calculate means and credible intervals
+  UU_psi_CIs <- apply(UU_psi,2,quantile, c(0.025,0.975), na.rm=TRUE)
+  
+  UU_psi_preds <- data.frame(year = UU_data, 
+                             predicted = UU_psi_means, 
+                             treatment = "UU",
+                             LCI = UU_psi_CIs[1,],
+                             UCI = UU_psi_CIs[2,])  
   
   
   
+# Combine - only include dataframes for treatments that have data
+  all_treatment_preds <- list()
+  
+  if(nrow(BU_psi_preds) > 0) all_treatment_preds[["BU"]] <- BU_psi_preds
+  if(nrow(HB_psi_preds) > 0) all_treatment_preds[["HB"]] <- HB_psi_preds  
+  if(nrow(HU_psi_preds) > 0) all_treatment_preds[["HU"]] <- HU_psi_preds
+  if(nrow(BS_psi_preds) > 0) all_treatment_preds[["BS"]] <- BS_psi_preds
+  if(nrow(UU_psi_preds) > 0) all_treatment_preds[["UU"]] <- UU_psi_preds
+  
+  year_treatment_preds <- do.call(rbind, all_treatment_preds)  
+  print(year_treatment_preds)
+  row.names(year_treatment_preds) <- NULL
   
   
+# Plot with points and lines, automatically handling missing combinations
+  p2 <- ggplot(year_treatment_preds, aes(x = year, y = predicted, color = treatment)) +
+    geom_point(size = 2.5) +
+    geom_errorbar(aes(ymin = LCI, ymax = UCI), width = 0.1, alpha = 0.7) +
+    labs(x = "Year", 
+         y = "Predicted Occupancy Probability",
+         title = "Occupancy Estimates by Year and Treatment - OSS") +
+    theme_minimal() +
+    theme(legend.position = "bottom") +
+    scale_x_continuous(breaks = unique(year_treatment_preds$year))
+  
+  
+  ggsave("figures/o-yearly-trt-preds.png", plot = p2, dpi = 300)
+
+
+
+
