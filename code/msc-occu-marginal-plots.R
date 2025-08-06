@@ -568,7 +568,7 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
         geom_ribbon(aes(ymin = LCI, ymax = UCI), alpha = 0.2) +
         ylab(bquote("Predicted "*psi~"")) +
         xlab("Latitude") +
-        labs(title = "Marginal Effect of Latitude on Occupancy") +
+        labs(title = "Marginal Effect of Covariates on ENES Occupancy") +
         theme_classic() +
         theme(legend.position = "none",
               strip.text = element_text(size = 12, face = "bold"),
@@ -640,7 +640,7 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
         geom_ribbon(aes(ymin = LCI, ymax = UCI), alpha = 0.2) +
         ylab(bquote("Predicted "*psi~"")) +
         xlab("Longitude") +
-        labs(title = "Marginal Effect of Longitude on Occupancy") +
+        #labs(title = "Marginal Effect of Longitude on Occupancy") +
         theme_classic() +
         theme(legend.position = "none",
               strip.text = element_text(size = 12, face = "bold"),
@@ -713,13 +713,19 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
         geom_ribbon(aes(ymin = LCI, ymax = UCI), alpha = 0.2) +
         ylab(bquote("Predicted "*psi~"")) +
         xlab("Elevation (m)") +
-        labs(title = "Marginal Effect of Elevation on Occupancy") +
+        #labs(title = "Marginal Effect of Elevation on Occupancy") +
         theme_classic() +
         theme(legend.position = "none",
               strip.text = element_text(size = 12, face = "bold"),
               plot.title = element_text(hjust = 0.5, face = "bold"))  
   
   #ggsave("figures/e-elev-effect.png", plot = p.elev, dpi = 300)
+  
+  
+# Combine
+  p.enes <- e.lat / e.long / e.elev
+  
+  ggsave("figures/e-covs-effect.png", plot = p.enes, dpi = 300)
   
   
 ##### Marginal Psi Plots - OSS -------------------------------------------  
@@ -790,11 +796,11 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
   lat_psi_preds_o$species = "OSS"
   
   o.lat <- ggplot(lat_psi_preds_o, aes(x = cov_value, y = predicted)) +
-    geom_line() +
+    geom_line(size = 1) +
     geom_ribbon(aes(ymin = LCI, ymax = UCI), alpha = 0.2) +
     ylab(bquote("Predicted "*psi~"")) +
     xlab("Latitude") +
-    labs(title = "Marginal Effect of Latitude on Occupancy") +
+    labs(title = "Marginal Effect of Covariates on OSS Occupancy") +
     theme_classic() +
     theme(legend.position = "none",
           strip.text = element_text(size = 12, face = "bold"),
@@ -862,11 +868,11 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
   lon_psi_preds_o$species = "OSS"
   
   o.long <- ggplot(lon_psi_preds_o, aes(x = cov_value, y = predicted)) +
-    geom_line() +
+    geom_line(size = 1) +
     geom_ribbon(aes(ymin = LCI, ymax = UCI), alpha = 0.2) +
     ylab(bquote("Predicted "*psi~"")) +
     xlab("Longitude") +
-    labs(title = "Marginal Effect of Longitude on Occupancy") +
+    #labs(title = "Marginal Effect of Longitude on Occupancy") +
     theme_classic() +
     theme(legend.position = "none",
           strip.text = element_text(size = 12, face = "bold"),
@@ -935,11 +941,11 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
   elev_psi_preds_o$species = "OSS"
   
   o.elev <- ggplot(elev_psi_preds_o, aes(x = cov_value, y = predicted)) +
-    geom_line() +
+    geom_line(size = 1) +
     geom_ribbon(aes(ymin = LCI, ymax = UCI), alpha = 0.2) +
     ylab(bquote("Predicted "*psi~"")) +
     xlab("Elevation (m)") +
-    labs(title = "Marginal Effect of Elevation on Occupancy") +
+    #labs(title = "Marginal Effect of Elevation on Occupancy") +
     theme_classic() +
     theme(legend.position = "none",
           strip.text = element_text(size = 12, face = "bold"),
@@ -947,7 +953,11 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
   
   #ggsave("figures/e-elev-effect.png", plot = p.elev, dpi = 300)
   
-
+# Combine
+  p.oss <- o.lat / o.long / o.elev
+  
+  ggsave("figures/o-covs-effect.png", plot = p.oss, dpi = 300)
+  
 ##### Combined Psi Plots - both spp -----------------------------------------------
   
   # add covariate col and combine all occu covariate preds into one df
@@ -1063,10 +1073,10 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
   DW_psi_preds_e$species <- "ENES"
   
   e.dw <- ggplot(DW_psi_preds, aes(x = cov_value, y = predicted)) +
-    geom_line(color = "blue", size = 1) +
-    geom_ribbon(aes(ymin = LCI, ymax = UCI), fill = "blue", alpha = 0.2) +
+    geom_line(size = 1) +
+    geom_ribbon(aes(ymin = LCI, ymax = UCI), alpha = 0.2) +
     ylab(bquote("Predicted "*theta~"")) +
-    xlab("") +
+    xlab("Downed Wood Count") +
     labs(title = "Marginal Effect of Downed Wood on Plot Use") +
     theme_classic() +
     theme(legend.position = "none",
@@ -1123,10 +1133,10 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
   
   
   e.temp <- ggplot(temp_preds, aes(x = cov_value, y = predicted)) +
-        geom_line(color = "blue", size = 1) +
-        geom_ribbon(aes(ymin = LCI, ymax = UCI), fill = "blue", alpha = 0.2) +
+        geom_line(size = 1) +
+        geom_ribbon(aes(ymin = LCI, ymax = UCI), alpha = 0.2) +
         ylab(bquote("Predicted p")) +
-        xlab("") +
+        xlab("Temperature (C)") +
         labs(title = "Marginal Effect of Temperature on Detection") +
         theme_classic() +
         theme(legend.position = "none",
@@ -1136,6 +1146,8 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
   
   #ggsave("figures/e-temp-effect.png", plot = o.temp, dpi = 300)
 
+  p <- e.dw | e.temp
+  
 ##### DW and Temp - OSS ------------------------------------------
   b <- O2    
   dat <- o_covs 
@@ -1185,10 +1197,11 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
   
   
   o.dw <- ggplot(DW_psi_preds, aes(x = cov_value, y = predicted)) +
-    geom_line(color = "orange", size = 1) +
-    geom_ribbon(aes(ymin = LCI, ymax = UCI), fill = "orange", alpha = 0.2) +
+    geom_line(size = 1) +
+    geom_ribbon(aes(ymin = LCI, ymax = UCI), alpha = 0.2) +
     ylab(bquote("Predicted "*theta~"")) +
     xlab("Downed Wood Count") +
+    labs(title = "Marginal Effect of Downed Wood on Plot Use") +
     theme_classic() +
     theme(legend.position = "none",
           strip.text = element_text(size = 12, face = "bold"),
@@ -1243,10 +1256,11 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
   temp_preds_o$species <- "OSS"
   
   o.temp <- ggplot(temp_preds, aes(x = cov_value, y = predicted)) +
-    geom_line(color = "orange", size = 1) +
-    geom_ribbon(aes(ymin = LCI, ymax = UCI), fill = "orange", alpha = 0.2) +
+    geom_line(size = 1) +
+    geom_ribbon(aes(ymin = LCI, ymax = UCI), alpha = 0.2) +
     ylab(bquote("Predicted p")) +
     xlab("Temperature (C)") +
+    labs(title = "Marginal Effect of Temperature on Detection") +
     theme_classic() +
     theme(legend.position = "none",
           strip.text = element_text(size = 12, face = "bold"),
@@ -1255,6 +1269,7 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
   
   #ggsave("figures/e-temp-effect.png", plot = o.temp, dpi = 300)
   
+  p2 <- o.dw | o.temp
   
 ##### Combine DW and Temp plots - both spp ------------------------------
   
@@ -1314,6 +1329,20 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
   p3 <- p1 / p2
     
   ggsave("figures/both-spp-dw-temp.png", plot = p3, dpi = 500)
+  
+  
+  
+  
+
+  
+##### One plot to rule them all - each spp separately -------------------------
+  
+  p10 <- (e.lat / e.long / e.elev) | (e.dw / e.temp)
+  ggsave("figures/o-all-covs.png", plot = p10, dpi = 300)
+  
+  p11 <- (o.lat / o.long / o.elev) | (o.dw / o.temp)
+  ggsave("figures/e-all-covs.png", plot = p11, dpi = 300)
+  
   
   
   

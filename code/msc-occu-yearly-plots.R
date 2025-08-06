@@ -10,7 +10,7 @@
 setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi-scale-occu-oss")
 
 
-##### Setup --------------------------------------------
+## Setup 
   library(ggplot2)
   library(dplyr)
 
@@ -275,11 +275,13 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
          y = "Predicted Occupancy Probability",
          title = "Occupancy Estimates by Year and Treatment - OSS") +
     theme_minimal() +
-    theme(legend.position = "bottom") +
+    theme(legend.position = "bottom",
+          panel.grid.minor = element_blank(),
+          panel.grid.major.x = element_blank()) +
     scale_x_continuous(breaks = unique(year_treatment_preds$year))
   
   
-  ggsave("figures/o-yearly-trt-preds.png", plot = p2, dpi = 300)
+  ggsave("figures/o-yearly-trt-preds.png", plot = p2, dpi = 300, bg = "white")
 
 
 
