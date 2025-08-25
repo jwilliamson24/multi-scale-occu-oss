@@ -125,6 +125,7 @@
   dat$elevscaled <- scale(dat$elev)
   dat$latscaled <- scale(dat$lat)
   dat$longscaled <- scale(dat$long)
+  dat$char_scaled <- scale(dat$char_cl)
 
   
 # temperature - 4D matrix (plot, occ, site, year)
@@ -156,18 +157,33 @@
 
   
 # downed wood at site lvl
-  downedwood.new =array(0,dim=c(maxI, n.years)) #new data 
-  for(i in 1:nrow(dat)){ #loop through each row
-    this.year=which(years==dat$year[i]) #get year for this row
-    this.site=which(year.sites[[this.year]]==dat$site_id[i]) #get site for this row
-    downedwood.new[this.site,this.year]=as.numeric(dat$DWscaled[i]) #force numeric
+  # dw at site level using aggregate
+  site_dw <- aggregate(DWscaled ~ site_id + year, data = dat, FUN = mean, na.rm = TRUE)
+  
+  # fill the array using same structure as other covariates
+  downedwood.new = array(0, dim = c(maxI, n.years)) 
+  for(i in 1:nrow(site_dw)){ #loop through each aggregated row
+    this.year = which(years == site_dw$year[i]) #get year for this row
+    this.site = which(year.sites[[this.year]] == site_dw$site_id[i]) #get site for this row
+    downedwood.new[this.site, this.year] = as.numeric(site_dw$V1[i]) #force numeric
   }
   
   str(downedwood.new)
-  sum(downedwood.new, na.rm=TRUE)
-  sum(downedwood.new == 0, na.rm=TRUE)  
+  sum(downedwood.new, na.rm = TRUE)
+  sum(downedwood.new == 0, na.rm = TRUE)
+ 
   
+# char cl at site lvl
+  site_char <- aggregate(char_scaled ~ site_id + year, data = dat, FUN = mean, na.rm = TRUE)
+  char.2D = array(0, dim = c(maxI, n.years))
+  for(i in 1:nrow(site_char)){ #loop through each aggregated row
+    this.year = which(years == site_char$year[i]) #get year for this row
+    this.site = which(year.sites[[this.year]] == site_char$site_id[i]) #get site for this row
+    char.2D[this.site, this.year] = as.numeric(site_char$V1[i]) #force numeric
+  }
+   str(char.2D)
   
+   
 # treatment
   # Make each treatment a dummy covariate
   table(dat$trt)
