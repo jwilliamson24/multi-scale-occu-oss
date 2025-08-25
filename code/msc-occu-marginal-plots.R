@@ -1338,10 +1338,10 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
 ##### One plot to rule them all - each spp separately -------------------------
   
   p10 <- (e.lat / e.long / e.elev) | (e.dw / e.temp)
-  ggsave("figures/o-all-covs.png", plot = p10, dpi = 300)
+  ggsave("figures/e-all-covs.png", plot = p10, dpi = 300)
   
   p11 <- (o.lat / o.long / o.elev) | (o.dw / o.temp)
-  ggsave("figures/e-all-covs.png", plot = p11, dpi = 300)
+  ggsave("figures/o-all-covs.png", plot = p11, dpi = 300)
   
   
   

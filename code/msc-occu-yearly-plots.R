@@ -32,7 +32,7 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
 
 #### Plot predicted occupancy for each year and treatment 
   
-  b <- E2  # # # # choose species # # # #
+  b <- O2  # # # # choose species # # # #
   
   # number of posterior samples
   n.samples = nrow(b)
@@ -269,8 +269,9 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
   
 # Plot with points and lines, automatically handling missing combinations
   p2 <- ggplot(year_treatment_preds, aes(x = year, y = predicted, color = treatment)) +
-    geom_point(size = 2.5) +
-    geom_errorbar(aes(ymin = LCI, ymax = UCI), width = 0.1, alpha = 0.7) +
+    geom_pointrange(aes(ymin = LCI, ymax = UCI), 
+                    position = position_dodge(width = 0.4),
+                    size = 0.8) +
     labs(x = "Year", 
          y = "Predicted Occupancy Probability",
          title = "Occupancy Estimates by Year and Treatment - OSS") +
@@ -281,7 +282,7 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
     scale_x_continuous(breaks = unique(year_treatment_preds$year))
   
   
-  ggsave("figures/e-yearly-trt-preds.png", plot = p2, dpi = 300, bg = "white")
+  ggsave("figures/o-yearly-trt-preds.png", plot = p2, dpi = 300, bg = "white")
 
 
 
