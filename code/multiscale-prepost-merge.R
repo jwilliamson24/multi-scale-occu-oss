@@ -13,7 +13,10 @@
 ## settings -----------------------------------------------------------------------------------------------
 
   rm(list=ls())
-  setwd("/Users/jasminewilliamson/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/oss-occu")
+
+  library(dplyr)
+
+  setwd("/Users/jasminewilliamson/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi-scale-occu-oss")
 
 
 ## load data ------------------------------------------------------------------------

@@ -32,15 +32,15 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
 
 #### Plot predicted occupancy for each year and treatment 
   
-  b <- O2  # # # # choose species # # # #
+  b <- E2  # # # # choose species # # # #
   
   # number of posterior samples
   n.samples = nrow(b)
   
   # dataframe with only valid year-treatment combos
   valid_combos <- data.frame(
-    year = c(1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 8, 8, 8, 9, 9, 9, 9, 9),
-    treatment = c("UU", "HU", "UU", "HU", "UU", "HU", "UU", "HU", 
+    year = c(1, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 8, 8, 8, 9, 9, 9, 9, 9),
+    treatment = c("UU", "UU", "UU", "HU", "UU", "HU", 
                   "UU", "HU", "UU", "HU", "UU", "HU", # 2013-2019, just UU, HU
                   "UU", "HU", "BU", "HB", "BS", # 2023, all trts
                   "UU", "HU", "BU", "HB", "BS")) # 2024, all trts
@@ -281,7 +281,7 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
     scale_x_continuous(breaks = unique(year_treatment_preds$year))
   
   
-  ggsave("figures/o-yearly-trt-preds.png", plot = p2, dpi = 300, bg = "white")
+  ggsave("figures/e-yearly-trt-preds.png", plot = p2, dpi = 300, bg = "white")
 
 
 
