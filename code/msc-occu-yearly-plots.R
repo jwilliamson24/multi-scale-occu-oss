@@ -284,6 +284,8 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
   
   ggsave("figures/o-yearly-trt-preds.png", plot = p2, dpi = 300, bg = "white")
 
-
+  
+# yearly detection (luke)
+  enes %>% mutate(detect = ifelse(V1 == 1 | V2 == 1 | V3 == 1, 1, 0)) %>% filter(UU == 1) %>% group_by(year) %>% summarise(detect = sum(detect) / n())
 
 

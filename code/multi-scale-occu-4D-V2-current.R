@@ -10,8 +10,9 @@
 ## =================================================
 
 ## Notes
-# added lat/long/elev, removed mgmt
+# added lat/long/elev, removed mgmt 072525
 # current version 250,000 iter
+# moved dwd to occupancy from usage 082525
 
 
 # Load packages
@@ -153,6 +154,19 @@
   sum(downedwood.3D, na.rm=TRUE)
   sum(downedwood.3D == 0, na.rm=TRUE)
 
+  
+# downed wood at site lvl
+  downedwood.new =array(0,dim=c(maxI, n.years)) #new data 
+  for(i in 1:nrow(dat)){ #loop through each row
+    this.year=which(years==dat$year[i]) #get year for this row
+    this.site=which(year.sites[[this.year]]==dat$site_id[i]) #get site for this row
+    downedwood.new[this.site,this.year]=as.numeric(dat$DWscaled[i]) #force numeric
+  }
+  
+  str(downedwood.new)
+  sum(downedwood.new, na.rm=TRUE)
+  sum(downedwood.new == 0, na.rm=TRUE)  
+  
   
 # treatment
   # Make each treatment a dummy covariate
@@ -296,7 +310,7 @@ for(chain in 1:n.chains){
     K2D = K2D,  #operation matrix
     HU = HU.new, BU = BU.new, BS = BS.new, HB = HB.new, # treatments
     temp = temp.3D, 
-    downedwood = downedwood.3D, # count of dwd pieces
+    downedwood = downedwood.new, # count of dwd pieces
     #mgmt = mgmt.2D, # management type 0=private, 1=public
     lat = lat.2D,
     lon = lon.2D,
@@ -347,9 +361,9 @@ for(chain in 1:n.chains){
   # set initial values
   Niminits <- list(beta0.psi = 0, beta0.theta = 0, alpha0 = 0,
                   beta1.psi.BU = 0, beta2.psi.HB = 0, beta3.psi.HU = 0, beta4.psi.BS = 0, 
-                  beta5.psi.lat = 0, beta6.psi.lon = 0, beta8.psi.elev = 0,
-                  # beta7.psi.mgmt = 0, 
-                  beta1.theta.DW = 0, alpha1 = 0, alpha2 = 0, 
+                  beta5.psi.lat = 0, beta6.psi.lon = 0, beta8.psi.elev = 0, beta9.psi.dwd = 0,
+                  # beta7.psi.mgmt = 0, beta1.theta.DW = 0, 
+                  alpha1 = 0, alpha2 = 0, 
                   beta0.psi.year = rnorm(nyears), beta0.theta.year = rnorm(nyears), alpha0.year = rnorm(nyears), 
                   sd.psi.year = runif(1, 0.1, 1), sd.theta.year = runif(1, 0.1, 1), 
                   sd.p.year = runif(1, 0.1, 1), z = z_init, w = w_init)
@@ -358,9 +372,9 @@ for(chain in 1:n.chains){
   parameters <- c("beta0.psi.year", "beta0.theta.year", "alpha0.year", 
                   "beta0.psi", "beta0.theta", "alpha0", 
                   "beta1.psi.BU", "beta2.psi.HB", "beta3.psi.HU", "beta4.psi.BS", 
-                  "beta5.psi.lat", "beta6.psi.lon", "beta8.psi.elev",
-                  # "beta7.psi.mgmt", 
-                  'beta1.theta.DW', 'alpha1', 'alpha2')
+                  "beta5.psi.lat", "beta6.psi.lon", "beta8.psi.elev", "beta9.psi.dwd",
+                  # "beta7.psi.mgmt", 'beta1.theta.DW', 
+                  'alpha1', 'alpha2')
  
   str(K2D)
   str(y.4D)
@@ -383,7 +397,8 @@ for(chain in 1:n.chains){
     beta6.psi.lon ~ dnorm(0, sd = 5) # longitude
     #beta7.psi.mgmt ~ dnorm(0, sd = 5) # management type
     beta8.psi.elev ~ dnorm(0, sd = 5) # elevation
-    beta1.theta.DW ~ dnorm(0, sd = 5) # downed wood effect on plot use
+    beta9.psi.dwd ~ dnorm(0, sd = 5) # downed wood site lvl
+    #beta1.theta.DW ~ dnorm(0, sd = 5) # downed wood effect on plot use
     alpha1 ~ dnorm(0, sd =5) # linear temp effect on detection
     alpha2 ~ dnorm(0, sd = 5) # quadratic temp
     
@@ -399,7 +414,7 @@ for(chain in 1:n.chains){
                          beta1.psi.BU * BU[i,t] + beta2.psi.HB * HB[i,t] + beta3.psi.HU * HU[i,t] + 
                          beta4.psi.BS * BS[i,t] + beta5.psi.lat * lat[i,t] + beta6.psi.lon * lon[i,t] + 
                          # beta7.psi.mgmt * mgmt[i,t] + 
-                         beta8.psi.elev * elev[i,t]
+                         beta8.psi.elev * elev[i,t] + beta9.psi.dwd * downedwood[i,t]
       z[i,t] ~ dbern(psi[i,t]) # is site occupied? z=1 yes, z=0 no
         }
       }
@@ -411,7 +426,7 @@ for(chain in 1:n.chains){
       # estimate theta (plot usage) as function of covs 
       for (i in 1:I[t]){
         for(j in 1:J[i]){
-        logit(theta[j,i,t]) <- beta0.theta.year[t] + beta1.theta.DW * downedwood[j,i,t]
+        logit(theta[j,i,t]) <- beta0.theta.year[t] #+ beta1.theta.DW * downedwood[j,i,t]
         w[j,i,t] ~ dbern(theta[j,i,t]*z[i,t]) #is plot j used given site i is occupied?
         }
       }
@@ -490,10 +505,10 @@ for(chain in 1:n.chains){
                mcmc(chains2[[3]][n.burn2:n.iter2,]))
 
 # save
-  save(a, file = "multiscale_output_072525_oss_full.RData")
-  save(a, constants, Nimdata, NimModel, Niminits, file = "multiscale_output_and_data_072525_oss_full.RData")
+  save(a, file = "multiscale_output_082525_oss_full.RData")
+  save(a, constants, Nimdata, NimModel, Niminits, file = "multiscale_output_and_data_082525_oss_full.RData")
 
-  load("multiscale_output_and_data_072125_small.RData")
+  #load("multiscale_output_and_data_072125_small.RData")
   
   
 ## Diagnostics ------------------------------------------------------------

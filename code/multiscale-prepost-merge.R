@@ -73,7 +73,7 @@
   
   # site, subplot, temp, lat, long, elev
   subplot.info <- subplot.lvl %>%
-    select(site_id, subplot, tempC, lat, long, elev, logs)
+    select(site_id, subplot, tempC, lat, long, elev, logs, char_cl)
   
   
 # add to detection matrices
@@ -165,7 +165,11 @@
 # add lat, long, elev
   xe3 <- merge(xe2, geo.data.pre, by = c("stand", "subplot", "year"))
   xo3 <- merge(xo2, geo.data.pre, by = c("stand", "subplot", "year"))
-  
+
+# add char col
+  xe3$char_cl <- 0
+  xo3$char_cl <- 0  
+
   
 # merge -----------------------------------------------------------------------------
   
@@ -174,7 +178,7 @@
   colnames(dets.o)
   colnames(dets.o) <- c("site_id","stand","trt","year","subplot","V1","V2","V3",
                         "jul_date","owner","mgmt_type", "HB", "BU", "BS", "HU", "UU", 
-                        "temp", "lat", "long", "elev", "DW")
+                        "temp", "lat", "long", "elev", "DW", "char_cl")
 
   colnames(xo3)
   xo3$BS <- 0
@@ -183,15 +187,16 @@
 
   oss.full <- rbind(dets.o, xo3)
   summary(oss.full)
+  oss.full$char_cl[is.na(oss.full$char_cl)] <- 0
   
-  write.csv(oss.full, "data/occupancy/oss.prepost.multiscale.occu.csv", row.names = FALSE)
+  write.csv(oss.full, "data/oss.prepost.multiscale.occu.csv", row.names = FALSE)
     
   
 # enes
   colnames(dets.e)
   colnames(dets.e) <- c("site_id","stand","trt","year","subplot","V1","V2","V3",
                         "jul_date","owner","mgmt_type", "HB", "BU", "BS", "HU", "UU", 
-                        "temp", "lat", "long", "elev", "DW")
+                        "temp", "lat", "long", "elev", "DW", "char_cl")
   
   colnames(xe3)
   xe3$BS <- 0
@@ -199,8 +204,9 @@
   xe3$BU <- 0
   
   enes.full <- rbind(dets.e, xe3)
+  enes.full$char_cl[is.na(enes.full$char_cl)] <- 0
   summary(enes.full)
   
-  write.csv(enes.full, "data/occupancy/enes.prepost.multiscale.occu.csv", row.names = FALSE)
+  write.csv(enes.full, "data/enes.prepost.multiscale.occu.csv", row.names = FALSE)
   
   
