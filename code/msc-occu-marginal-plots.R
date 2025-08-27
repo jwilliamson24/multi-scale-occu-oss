@@ -21,7 +21,7 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
   load("data/msc-enes-data-workspace.RData")
   load("data/multiscale_output_and_data_072125_enes_small.RData")
   E = a2
-  load("data/multiscale_output_and_data_072525_oss_small.RData")
+  load("multiscale_output_082525_oss_small.RData")
   O = a2
   
 # Estimates
@@ -201,7 +201,8 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
 # Plot
   
   p <-  ggplot(alltreatment_preds, aes(x = treatment, y = predicted)) +
-    geom_point(position = position_dodge(0.5), size = 1.5)+ geom_errorbar(aes(ymin = LCI, ymax = UCI), width = 0.1, position = position_dodge(0.5))+
+    geom_point(position = position_dodge(0.5), size = 1.5)+ 
+    geom_errorbar(aes(ymin = LCI, ymax = UCI), width = 0.1, position = position_dodge(0.5))+
     ylab(bquote("Predicted "*psi~""))+ xlab("Treatment Group")+
     labs(title="Predicted Occupancy Estimates by Treatment - ENES") +
     theme_classic()
@@ -379,9 +380,10 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
   # Plot
   
   p <-  ggplot(alltreatment_preds2, aes(x = treatment, y = predicted)) +
-    geom_point(position = position_dodge(0.5), size = 1.5)+ geom_errorbar(aes(ymin = LCI, ymax = UCI), width = 0.1, position = position_dodge(0.5))+
+    geom_point(position = position_dodge(0.5), size = 1.5)+ 
+    geom_errorbar(aes(ymin = LCI, ymax = UCI), width = 0.1, position = position_dodge(0.5))+
     ylab(bquote("Predicted "*psi~""))+ xlab("Treatment Group")+
-    labs(title="Predicted Occupancy Estimates by Treatment - ENES") +
+    labs(title="Predicted Occupancy Estimates by Treatment - OSS") +
     theme_classic()
   
   ggsave("figures/o-trt-psi-preds.png", plot = p, dpi = 500)  
@@ -421,7 +423,7 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
   
   params_to_plot <- c("beta0.psi", "beta0.theta", "alpha0", 
                       "beta1.psi.BU", "beta2.psi.HB", "beta3.psi.HU", "beta4.psi.BS", 
-                      "beta5.psi.lat", "beta6.psi.lon", "beta8.psi.elev",
+                      "beta5.psi.lat", "beta6.psi.lon", "beta8.psi.elev", "beta9.psi.dwd",
                       "beta1.theta.DW", "alpha1", "alpha2")
   
   # summarize
@@ -437,10 +439,11 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
   
   # add submodel column to group by
   coef_df$Submodel <- case_when(
-    coef_df$Parameter %in% c("beta0.psi", "beta1.psi.BU", "beta2.psi.HB", "beta3.psi.HU", "beta4.psi.BS", 
-                             "beta5.psi.lat", "beta6.psi.lon", "beta8.psi.elev") ~ "Site Occupancy (ψ)",
+    coef_df$Parameter %in% c("beta0.psi", "beta1.psi.BU", "beta2.psi.HB", "beta3.psi.HU", 
+                             "beta4.psi.BS", "beta5.psi.lat", "beta6.psi.lon", 
+                             "beta8.psi.elev", "beta9.psi.dwd") ~ "Site Occupancy (ψ)",
     
-    coef_df$Parameter %in% c("beta0.theta", "beta1.theta.DW") ~ "Subplot Use (θ)",
+    coef_df$Parameter %in% c("beta0.theta") ~ "Subplot Use (θ)",
     
     coef_df$Parameter %in% c("alpha0", "alpha1", "alpha2") ~ "Detection (p)",
     
@@ -466,7 +469,7 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
                               "beta5.psi.lat" = "Latitude",
                               "beta6.psi.lon" = "Longitude",
                               "beta8.psi.elev" = "Elevation",
-                              "beta1.theta.DW" = "Downed Wood",
+                              "beta9.psi.dwd" = "Downed Wood",
                               "alpha1" = "Linear Temp",
                               "alpha2" = "Quadratic Temp")
   
@@ -952,6 +955,79 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
           plot.title = element_text(hjust = 0.5, face = "bold"))  
   
   #ggsave("figures/e-elev-effect.png", plot = p.elev, dpi = 300)
+
+ 
+# DWD on psi
+  
+  # range
+  r<- range(downedwood.new)
+  # create sequence along range
+  dwd_data <- seq(r[1], r[2], length.out=50) 
+  
+  # set all other covs at mean
+  HB = 0
+  HU = 0
+  BS = 0
+  BU = 0
+  lat = 0
+  long = 0
+  elev = 0
+  
+  # create matrices to stick estimates in
+  logit_dwd_psi = matrix(NA, n.samples, length(dwd_data))
+  
+  # psi predictions for enes
+  # Sample from posterior for the sequence of values for cov 
+  for (i in 1:n.samples){
+    for (j in 1:length(dwd_data)){
+      logit_dwd_psi[i,j] = 
+        b[,'beta0.psi'][[i]] + 
+        b[,'beta1.psi.BU'][[i]] * BU + 
+        b[,'beta2.psi.HB'][[i]] * HB + 
+        b[,'beta3.psi.HU'][[i]] * HU + 
+        b[,'beta4.psi.BS'][[i]] * BS + 
+        b[,'beta5.psi.lat'][[i]] * lat +  
+        b[,'beta6.psi.lon'][[i]] * long +  
+        b[,'beta8.psi.elev'][[i]] * elev +
+        b[,'beta9.psi.dwd'][[i]] * dwd_data[j] 
+    }}
+  
+  # create array 
+  dwd_psi = matrix(NA, n.samples, length(dwd_data))
+  
+  # transform psi off logit-scale back to probability scale
+  dwd_psi <- plogis(logit_dwd_psi)
+  
+  # calculate means and credible intervals
+  dwd_psi_means = colMeans(dwd_psi) 
+  dwd_psi_CIs <- apply(dwd_psi,2,quantile, c(0.025,0.975), na.rm=TRUE)
+  
+  # stuff into df
+  dwd_psi_preds <- data.frame(predicted = dwd_psi_means, 
+                               cov_zsc = dwd_data,
+                               LCI = dwd_psi_CIs[1,],
+                               UCI = dwd_psi_CIs[2,])
+  
+  # add back-transformed values to df (just in case i want them later)
+  dwd_mean  <- mean(dat$DW, na.rm = TRUE)
+  dwd_sd    <- sd(dat$DW, na.rm = TRUE)
+  dwd_psi_preds$cov_value  <- dwd_psi_preds$cov_zsc  * dwd_sd  + dwd_mean
+  
+  # add species column
+  dwd_psi_preds_o = dwd_psi_preds
+  dwd_psi_preds_o$species = "OSS"
+  
+  o.dwd <- ggplot(dwd_psi_preds_o, aes(x = cov_value, y = predicted)) +
+    geom_line(size = 1) +
+    geom_ribbon(aes(ymin = LCI, ymax = UCI), alpha = 0.2) +
+    ylab(bquote("Predicted "*psi~"")) +
+    xlab("dwd count") +
+    #labs(title = "Marginal Effect of DWD on Occupancy") +
+    theme_classic() +
+    theme(legend.position = "none",
+          strip.text = element_text(size = 12, face = "bold"),
+          plot.title = element_text(hjust = 0.5, face = "bold"))  
+  
   
 # Combine
   p.oss <- o.lat / o.long / o.elev

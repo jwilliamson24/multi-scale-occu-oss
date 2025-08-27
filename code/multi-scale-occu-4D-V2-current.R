@@ -25,6 +25,7 @@
   #oss <- read.csv("oss.prepost.multiscale.occu.csv")
 
 # JW data path  
+  setwd("/Users/jasminewilliamson/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi-scale-occu-oss")
   enes <- read.csv("data/enes.prepost.multiscale.occu.csv") 
   oss <- read.csv("data/oss.prepost.multiscale.occu.csv")
 
@@ -327,6 +328,7 @@ for(chain in 1:n.chains){
     HU = HU.new, BU = BU.new, BS = BS.new, HB = HB.new, # treatments
     temp = temp.3D, 
     downedwood = downedwood.new, # count of dwd pieces
+    char_cl = char.2D,
     #mgmt = mgmt.2D, # management type 0=private, 1=public
     lat = lat.2D,
     lon = lon.2D,
@@ -377,7 +379,8 @@ for(chain in 1:n.chains){
   # set initial values
   Niminits <- list(beta0.psi = 0, beta0.theta = 0, alpha0 = 0,
                   beta1.psi.BU = 0, beta2.psi.HB = 0, beta3.psi.HU = 0, beta4.psi.BS = 0, 
-                  beta5.psi.lat = 0, beta6.psi.lon = 0, beta8.psi.elev = 0, beta9.psi.dwd = 0,
+                  beta5.psi.lat = 0, beta6.psi.lon = 0, beta8.psi.elev = 0, 
+                  beta9.psi.dwd = 0, beta10.psi.char = 0,
                   # beta7.psi.mgmt = 0, beta1.theta.DW = 0, 
                   alpha1 = 0, alpha2 = 0, 
                   beta0.psi.year = rnorm(nyears), beta0.theta.year = rnorm(nyears), alpha0.year = rnorm(nyears), 
@@ -388,7 +391,8 @@ for(chain in 1:n.chains){
   parameters <- c("beta0.psi.year", "beta0.theta.year", "alpha0.year", 
                   "beta0.psi", "beta0.theta", "alpha0", 
                   "beta1.psi.BU", "beta2.psi.HB", "beta3.psi.HU", "beta4.psi.BS", 
-                  "beta5.psi.lat", "beta6.psi.lon", "beta8.psi.elev", "beta9.psi.dwd",
+                  "beta5.psi.lat", "beta6.psi.lon", "beta8.psi.elev", 
+                  "beta9.psi.dwd", "beta10.psi.char",
                   # "beta7.psi.mgmt", 'beta1.theta.DW', 
                   'alpha1', 'alpha2')
  
@@ -414,6 +418,7 @@ for(chain in 1:n.chains){
     #beta7.psi.mgmt ~ dnorm(0, sd = 5) # management type
     beta8.psi.elev ~ dnorm(0, sd = 5) # elevation
     beta9.psi.dwd ~ dnorm(0, sd = 5) # downed wood site lvl
+    beta10.psi.char ~ dnorm(0, sd = 5) # char class site lvl
     #beta1.theta.DW ~ dnorm(0, sd = 5) # downed wood effect on plot use
     alpha1 ~ dnorm(0, sd =5) # linear temp effect on detection
     alpha2 ~ dnorm(0, sd = 5) # quadratic temp
@@ -430,7 +435,8 @@ for(chain in 1:n.chains){
                          beta1.psi.BU * BU[i,t] + beta2.psi.HB * HB[i,t] + beta3.psi.HU * HU[i,t] + 
                          beta4.psi.BS * BS[i,t] + beta5.psi.lat * lat[i,t] + beta6.psi.lon * lon[i,t] + 
                          # beta7.psi.mgmt * mgmt[i,t] + 
-                         beta8.psi.elev * elev[i,t] + beta9.psi.dwd * downedwood[i,t]
+                         beta8.psi.elev * elev[i,t] + beta9.psi.dwd * downedwood[i,t] + 
+                         beta10.psi.char * char_cl[i,t]
       z[i,t] ~ dbern(psi[i,t]) # is site occupied? z=1 yes, z=0 no
         }
       }
@@ -491,7 +497,7 @@ for(chain in 1:n.chains){
   
   # Run the model
   start.time2 <- Sys.time()
-  Cmcmc$run(2500000,reset=FALSE) #Can keep extending the run by rerunning this line  # sets n.iterations
+  Cmcmc$run(250000,reset=FALSE) #Can keep extending the run by rerunning this line  # sets n.iterations
   end.time <- Sys.time()
   end.time - start.time  # total time for compilation, replacing samplers, and fitting
   end.time - start.time2 # post-compilation run time
@@ -521,11 +527,14 @@ for(chain in 1:n.chains){
                mcmc(chains2[[3]][n.burn2:n.iter2,]))
 
 # save
-  save(a, file = "multiscale_output_082525_oss_full.RData")
+  save(a, file = "multiscale_output_082525_oss-sm-dwd-and-char.RData")
   save(a, constants, Nimdata, NimModel, Niminits, file = "multiscale_output_and_data_082525_oss_full.RData")
 
-  #load("multiscale_output_and_data_072125_small.RData")
+  load("multiscale_output_082525_oss_small.RData")
   
+  # on tuesday i ran multiscale_output_082525_oss-sm-dwd-and-char
+  # 250000 iter with dwd and char on psi
+  # saved the data and didnt do anything with it
   
 ## Diagnostics ------------------------------------------------------------
   
@@ -540,7 +549,7 @@ for(chain in 1:n.chains){
   
 # Estimates
   summary(a2)
-  # zero boundary estimates seem to be gone!
+  # zero-boundary estimates gone!
   
 # Combine chains
   a=runjags::combine.mcmc(a2)
