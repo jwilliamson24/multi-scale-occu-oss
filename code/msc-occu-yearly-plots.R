@@ -19,7 +19,7 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
   o_covs <- read.csv("data/oss.prepost.multiscale.occu.csv")
   load("data/msc-enes-data-workspace.RData")
   load("data/multiscale_output_and_data_072125_enes_small.RData")
-  E = a
+  E = a2
   load("data/multiscale_output_and_data_072525_oss_small.RData")
   O = a2
   
@@ -49,6 +49,12 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
                   "UU", "HU", "UU", "HU", "UU", "HU", # 2013-2019, just UU, HU
                   "UU", "HU", "BU", "HB", "BS", # 2023, all trts
                   "UU", "HU", "BU", "HB", "BS")) # 2024, all trts
+  
+  CI_range <- c(0.05,0.95) # 90%
+  #CI_range <- c(0.025, 0.975) # 95%
+  #CI_range <- c(0.075, 0.925) # 85%
+  #CI_range <- c(0.1, 0.9) # 80%
+
   
   
 # BU    
@@ -87,7 +93,7 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
   
   # calculate means and credible intervals - mean predicted occupancy probability across all posterior samples
   BU_psi_means = colMeans(BU_psi) # - taking the mean of all samples (transformed occu prob)
-  BU_psi_CIs <- apply(BU_psi,2,quantile, c(0.05,0.95), na.rm=TRUE)
+  BU_psi_CIs <- apply(BU_psi,2,quantile, c(CI_range), na.rm=TRUE)
   
   # stuff into df
   BU_psi_preds <- data.frame(year = BU_data, 
@@ -168,7 +174,7 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
   HU_psi = matrix(NA, n.samples, length(HU_data))   # create array 
   HU_psi <- plogis(logit_psi)   # transform psi off logit-scale back to probability scale
   HU_psi_means = colMeans(HU_psi)   # calculate means and credible intervals
-  HU_psi_CIs <- apply(HU_psi,2,quantile, c(0.05,0.95), na.rm=TRUE)
+  HU_psi_CIs <- apply(HU_psi,2,quantile, c(CI_range), na.rm=TRUE)
   
   HU_psi_preds <- data.frame(year = HU_data, 
                              predicted = HU_psi_means, 
@@ -208,7 +214,7 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
   BS_psi = matrix(NA, n.samples, length(BS_data))   # create array 
   BS_psi <- plogis(logit_psi)   # transform psi off logit-scale back to probability scale
   BS_psi_means = colMeans(BS_psi)  # calculate means and credible intervals
-  BS_psi_CIs <- apply(BS_psi,2,quantile, c(0.05,0.95), na.rm=TRUE)
+  BS_psi_CIs <- apply(BS_psi,2,quantile, c(CI_range), na.rm=TRUE)
   
   BS_psi_preds <- data.frame(year = BS_data, 
                              predicted = BS_psi_means, 
@@ -248,7 +254,7 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
   UU_psi = matrix(NA, n.samples, length(UU_data))   # create array 
   UU_psi <- plogis(logit_psi)   # transform psi off logit-scale back to probability scale
   UU_psi_means = colMeans(UU_psi)  # calculate means and credible intervals
-  UU_psi_CIs <- apply(UU_psi,2,quantile, c(0.05,0.95), na.rm=TRUE)
+  UU_psi_CIs <- apply(UU_psi,2,quantile, c(CI_range), na.rm=TRUE)
   
   UU_psi_preds <- data.frame(year = UU_data, 
                              predicted = UU_psi_means, 
@@ -279,7 +285,7 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
                     size = 0.8) +
     labs(x = "Year", 
          y = "Predicted Occupancy Probability",
-         title = "Occupancy Estimates by Year and Treatment - OSS - dwd and char on psi") +
+         title = "Occupancy Estimates by Year and Treatment - ENES") +
     theme_minimal() +
     theme(legend.position = "bottom",
           panel.grid.minor = element_blank(),
