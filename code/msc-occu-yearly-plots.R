@@ -22,6 +22,11 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
   E = a
   load("data/multiscale_output_and_data_072525_oss_small.RData")
   O = a2
+  
+  
+  load("multiscale_output_082525_oss_small.RData")
+  load("multiscale_output_082525_oss-sm-dwd-and-char.RData")
+  
 
 # Combine
   summary(E)
@@ -32,7 +37,7 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
 
 #### Plot predicted occupancy for each year and treatment 
   
-  b <- E2  # # # # choose species # # # #
+  b <- O2  # # # # choose species # # # #
   
   # number of posterior samples
   n.samples = nrow(b)
@@ -274,7 +279,7 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
                     size = 0.8) +
     labs(x = "Year", 
          y = "Predicted Occupancy Probability",
-         title = "Occupancy Estimates by Year and Treatment - ENES") +
+         title = "Occupancy Estimates by Year and Treatment - OSS - dwd and char on psi") +
     theme_minimal() +
     theme(legend.position = "bottom",
           panel.grid.minor = element_blank(),
@@ -288,4 +293,34 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
 # yearly detection (luke)
   enes %>% mutate(detect = ifelse(V1 == 1 | V2 == 1 | V3 == 1, 1, 0)) %>% filter(UU == 1) %>% group_by(year) %>% summarise(detect = sum(detect) / n())
 
+  
 
+# looking at differences in CI width from model versions
+  
+  # ran above code for each model output and saved year_treatment_preds subset for each
+  
+  # add col so i can combine those into one df
+  original$model <- "Original"
+  withdwd$model <- "With DWD"
+  withdwdchar$model <- "With DWD Char"
+  
+  # Combine all dataframes
+  combined_df <- rbind(original, withdwd, withdwdchar)
+  
+  # Create the comparison plot
+  combined_df %>%
+    mutate(CI_width = UCI - LCI) %>%
+    ggplot(aes(x = factor(year), y = CI_width, fill = treatment)) +
+    geom_col(position = "dodge") +
+    facet_wrap(~model) +
+    labs(title = "CI Width Comparison Across Models",
+         x = "Year", y = "CI Width") +
+    theme_minimal()
+  
+  # summary table
+  combined_df %>%
+    mutate(CI_width = UCI - LCI) %>%
+    group_by(model, treatment) %>%
+    summarise(mean_CI_width = round(mean(CI_width), 3), .groups = 'drop') %>%
+    pivot_wider(names_from = model, values_from = mean_CI_width)
+  
