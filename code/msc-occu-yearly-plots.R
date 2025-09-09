@@ -17,10 +17,10 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
 # Load data
   e_covs <- read.csv("data/enes.prepost.multiscale.occu.csv") 
   o_covs <- read.csv("data/oss.prepost.multiscale.occu.csv")
-  load("data/msc-enes-data-workspace.RData")
-  load("data/multiscale_output_and_data_082525_enes_small.RData")
+  load("data/msc-enes-data-workspace-V2.RData")
+  load("data/multiscale_output_082525_enes_small.RData")
   E = a2
-  load("data/multiscale_output_and_data_082525_oss_small.RData")
+  load("data/multiscale_output_082525_oss_small.RData")
   O = a2
   
 
@@ -274,9 +274,9 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
   
   
 # Plot with points and lines, automatically handling missing combinations
-  p1 <- ggplot(year_treatment_preds, aes(x = year, y = predicted, color = treatment)) +
+  p2 <- ggplot(year_treatment_preds, aes(x = year, y = predicted, color = treatment)) +
     geom_pointrange(aes(ymin = LCI, ymax = UCI), 
-                    position = position_dodge(width = 0.4),
+                    position = position_dodge(width = 0.5),
                     size = 0.8) +
     labs(x = "Year", 
          y = "Predicted Occupancy Probability",
@@ -288,7 +288,7 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
     scale_x_continuous(breaks = unique(year_treatment_preds$year))
   
   
-  ggsave("figures/o-yearly-preds-90ci.png", plot = p1, dpi = 300, bg = "white")
+  ggsave("figures/o-yearly-preds-new.png", plot = p2, dpi = 300, bg = "white")
 
   
   

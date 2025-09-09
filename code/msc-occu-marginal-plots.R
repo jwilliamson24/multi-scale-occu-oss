@@ -1417,7 +1417,7 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
           plot.title = element_text(hjust = 0.5, face = "bold")) 
   
   
-  ggsave("figures/e-temp-effect.png", plot = o.temp, dpi = 300)
+  ggsave("figures/o-temp-effect.png", plot = o.temp, dpi = 300)
   
   p2 <- o.dw | o.temp
   
