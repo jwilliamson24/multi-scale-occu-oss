@@ -298,7 +298,11 @@
     elev.2D[this.site,this.year]=as.numeric(dat$elevscaled[i]) #force numeric
   }
   
+ 
+# save workspace for later use
+  save.image("msc-enes-data-workspace-V2.RData")
   
+   
 ## End formatting code ---------------------------------------------------------  
 ## Model   ---------------------------------------------------------------------
   

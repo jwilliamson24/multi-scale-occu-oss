@@ -18,10 +18,10 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
 # Load data
   e_covs <- read.csv("data/enes.prepost.multiscale.occu.csv") 
   o_covs <- read.csv("data/oss.prepost.multiscale.occu.csv")
-  load("data/msc-enes-data-workspace.RData")
-  load("data/multiscale_output_and_data_072125_enes_small.RData")
+  load("data/msc-enes-data-workspace-V2.RData")
+  load("data/multiscale_output_082525_enes_small.RData")
   E = a2
-  load("multiscale_output_082525_oss_small.RData")
+  load("data/multiscale_output_082525_oss_small.RData")
   O = a2
   
 # Estimates
@@ -207,7 +207,7 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
     labs(title="Predicted Occupancy Estimates by Treatment - ENES") +
     theme_classic()
   
-  ggsave("figures/e-trt-psi-preds.png", plot = p, dpi = 500)  
+  #ggsave("figures/e-trt-psi-preds.png", plot = p, dpi = 500)  
   
 
 # add species column for combined plot
@@ -386,7 +386,7 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
     labs(title="Predicted Occupancy Estimates by Treatment - OSS") +
     theme_classic()
   
-  ggsave("figures/o-trt-psi-preds.png", plot = p, dpi = 500)  
+  #ggsave("figures/o-trt-psi-preds.png", plot = p, dpi = 500)  
   
 
 # add species column for combined plot
@@ -414,17 +414,17 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
       strip.text = element_text(size = 15, face = "bold"),
       plot.title = element_text(hjust = 0.5, face = "bold"))
   
-  ggsave("figures/both-spp-trt-psi-preds.png", plot = p, dpi = 500)
+  #ggsave("figures/both-spp-trt-psi-preds.png", plot = p, dpi = 500)
   
   
 ##### Coefficient Plot ----------------------------------------------------------
   
-  summary_table <- summary(O) # # # # # choose species # # # # #
+  summary_table <- summary(E) # # # # # choose species # # # # #
   
   params_to_plot <- c("beta0.psi", "beta0.theta", "alpha0", 
                       "beta1.psi.BU", "beta2.psi.HB", "beta3.psi.HU", "beta4.psi.BS", 
                       "beta5.psi.lat", "beta6.psi.lon", "beta8.psi.elev", "beta9.psi.dwd",
-                      "beta1.theta.DW", "alpha1", "alpha2")
+                      "alpha1", "alpha2")
   
   # summarize
   coef_df <- data.frame(
@@ -479,7 +479,7 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
     geom_errorbarh(aes(xmin = LCI, xmax = UCI), height = 0.2) +
     geom_vline(xintercept = 0, linetype = "dashed") +
     facet_wrap(~ Submodel, scales = "free_y", ncol=1) +
-    labs(title = "Posterior Coefficient Estimates - OSS",
+    labs(title = "Posterior Coefficient Estimates - ENES",
          x = "Estimate (logit scale)",
          y = "Parameter") +
     theme(
@@ -493,7 +493,7 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
     )
   
   
-  ggsave("figures/o-coeff-plot-renamed-params.png", plot = p, dpi = 300)
+  #ggsave("figures/e-coeff-plot-renamed-params.png", plot = p, dpi = 300)
   
   
 ##### Marginal Psi Plots - ENES -------------------------------------------  
@@ -649,7 +649,7 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
               strip.text = element_text(size = 12, face = "bold"),
               plot.title = element_text(hjust = 0.5, face = "bold"))  
   
-  #ggsave("figures/e-long-effect.png", plot = p.long, dpi = 300)
+  #ggsave("figures/e-long-effect.png", plot = e.long, dpi = 300)
   
   
   
@@ -722,13 +722,85 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
               strip.text = element_text(size = 12, face = "bold"),
               plot.title = element_text(hjust = 0.5, face = "bold"))  
   
-  #ggsave("figures/e-elev-effect.png", plot = p.elev, dpi = 300)
+  #ggsave("figures/e-elev-effect.png", plot = e.elev, dpi = 300)
   
+
+# DWD on psi
   
+  # range
+  r<- range(downedwood.new)
+  # create sequence along range
+  dwd_data <- seq(r[1], r[2], length.out=50) 
+  
+  # set all other covs at mean
+  HB = 0
+  HU = 0
+  BS = 0
+  BU = 0
+  lat = 0
+  long = 0
+  elev = 0
+  
+  # create matrices to stick estimates in
+  logit_dwd_psi = matrix(NA, n.samples, length(dwd_data))
+  
+  # psi predictions for enes
+  # Sample from posterior for the sequence of values for cov 
+  for (i in 1:n.samples){
+    for (j in 1:length(dwd_data)){
+      logit_dwd_psi[i,j] = 
+        b[,'beta0.psi'][[i]] + 
+        b[,'beta1.psi.BU'][[i]] * BU + 
+        b[,'beta2.psi.HB'][[i]] * HB + 
+        b[,'beta3.psi.HU'][[i]] * HU + 
+        b[,'beta4.psi.BS'][[i]] * BS + 
+        b[,'beta5.psi.lat'][[i]] * lat +  
+        b[,'beta6.psi.lon'][[i]] * long +  
+        b[,'beta8.psi.elev'][[i]] * elev +
+        b[,'beta9.psi.dwd'][[i]] * dwd_data[j] 
+    }}
+  
+  # create array 
+  dwd_psi = matrix(NA, n.samples, length(dwd_data))
+  
+  # transform psi off logit-scale back to probability scale
+  dwd_psi <- plogis(logit_dwd_psi)
+  
+  # calculate means and credible intervals
+  dwd_psi_means = colMeans(dwd_psi) 
+  dwd_psi_CIs <- apply(dwd_psi,2,quantile, c(0.025,0.975), na.rm=TRUE)
+  
+  # stuff into df
+  dwd_psi_preds <- data.frame(predicted = dwd_psi_means, 
+                              cov_zsc = dwd_data,
+                              LCI = dwd_psi_CIs[1,],
+                              UCI = dwd_psi_CIs[2,])
+  
+  # add back-transformed values to df (just in case i want them later)
+  dwd_mean  <- mean(dat$DW, na.rm = TRUE)
+  dwd_sd    <- sd(dat$DW, na.rm = TRUE)
+  dwd_psi_preds$cov_value  <- dwd_psi_preds$cov_zsc  * dwd_sd  + dwd_mean
+  
+  # add species column
+  dwd_psi_preds_e = dwd_psi_preds
+  dwd_psi_preds_e$species = "ENES"
+  
+  e.dwd <- ggplot(dwd_psi_preds_e, aes(x = cov_value, y = predicted)) +
+    geom_line(size = 1) +
+    geom_ribbon(aes(ymin = LCI, ymax = UCI), alpha = 0.2) +
+    ylab(bquote("Predicted "*psi~"")) +
+    xlab("dwd count") +
+    #labs(title = "Marginal Effect of DWD on Occupancy") +
+    theme_classic() +
+    theme(legend.position = "none",
+          strip.text = element_text(size = 12, face = "bold"),
+          plot.title = element_text(hjust = 0.5, face = "bold"))    
+  
+    
 # Combine
-  p.enes <- e.lat / e.long / e.elev
+  p.enes <- (e.lat | e.long) / (e.elev | e.dwd)
   
-  ggsave("figures/e-covs-effect.png", plot = p.enes, dpi = 300)
+  #ggsave("figures/e-covs-effect.png", plot = p.enes, dpi = 300)
   
   
 ##### Marginal Psi Plots - OSS -------------------------------------------  
@@ -1021,7 +1093,7 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
     geom_line(size = 1) +
     geom_ribbon(aes(ymin = LCI, ymax = UCI), alpha = 0.2) +
     ylab(bquote("Predicted "*psi~"")) +
-    xlab("dwd count") +
+    xlab("DWD Count") +
     #labs(title = "Marginal Effect of DWD on Occupancy") +
     theme_classic() +
     theme(legend.position = "none",
@@ -1030,7 +1102,7 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
   
   
 # Combine
-  p.oss <- o.lat / o.long / o.elev
+  p.oss <- (o.lat | o.long) / (o.elev | o.dwd)
   
   ggsave("figures/o-covs-effect.png", plot = p.oss, dpi = 300)
   
@@ -1043,12 +1115,14 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
   lat_psi_preds_o$covariate <- "lat"
   lon_psi_preds_o$covariate <- "long"  
   elev_psi_preds_o$covariate <- "elev"  
+  dwd_psi_preds_e$covariate <- "dwd"
+  dwd_psi_preds_o$covariate <- "dwd"
 
 # single species plot  
-  occu_cov_preds_e <- rbind(lat_psi_preds_e, lon_psi_preds_e, elev_psi_preds_e)  
+  occu_cov_preds_e <- rbind(lat_psi_preds_e, lon_psi_preds_e, elev_psi_preds_e, dwd_psi_preds_e)  
   occu_cov_preds_e$covariate <- factor(occu_cov_preds_e$covariate,
-                                     levels = c("elev", "lat", "long"),
-                                     labels = c("Elevation", "Latitude", "Longitude"))
+                                     levels = c("elev", "lat", "long", "dwd"),
+                                     labels = c("Elevation", "Latitude", "Longitude", "Downed Wood"))
   
   
   p <- ggplot(occu_cov_preds_e, aes(x = cov_zsc, y = predicted,
@@ -1071,11 +1145,11 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
   
   
 # multi species plot
-  occu_cov_preds2 <- rbind(lat_psi_preds_e, lon_psi_preds_e, elev_psi_preds_e,
-                          lat_psi_preds_o, lon_psi_preds_o, elev_psi_preds_o)  
+  occu_cov_preds2 <- rbind(lat_psi_preds_e, lon_psi_preds_e, elev_psi_preds_e, dwd_psi_preds_e,
+                          lat_psi_preds_o, lon_psi_preds_o, elev_psi_preds_o, dwd_psi_preds_o)  
   occu_cov_preds2$covariate <- factor(occu_cov_preds2$covariate,
-                                     levels = c("elev", "lat", "long"),
-                                     labels = c("Elevation", "Latitude", "Longitude"))
+                                     levels = c("elev", "lat", "long", "dwd"),
+                                     labels = c("Elevation", "Latitude", "Longitude", "Downed Wood"))
   
   
   p <- ggplot(occu_cov_preds2, aes(x = cov_zsc, y = predicted,
@@ -1101,7 +1175,7 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
 
   ggsave("figures/both-spp-cov-psi-preds.png", plot = p, dpi = 500)
   
-##### DW and Temp - ENES ------------------------------------------  
+##### DW and Temp - ENES (for use when dwd is on theta) ------------------------------------------  
   b <- E2    
   dat <- e_covs 
   
@@ -1220,7 +1294,7 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
               plot.title = element_text(hjust = 0.5, face = "bold")) 
   
   
-  #ggsave("figures/e-temp-effect.png", plot = o.temp, dpi = 300)
+  ggsave("figures/e-temp-effect.png", plot = e.temp, dpi = 300)
 
   p <- e.dw | e.temp
   
@@ -1343,7 +1417,7 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
           plot.title = element_text(hjust = 0.5, face = "bold")) 
   
   
-  #ggsave("figures/e-temp-effect.png", plot = o.temp, dpi = 300)
+  ggsave("figures/e-temp-effect.png", plot = o.temp, dpi = 300)
   
   p2 <- o.dw | o.temp
   
