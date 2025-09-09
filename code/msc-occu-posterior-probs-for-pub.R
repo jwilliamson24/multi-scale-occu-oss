@@ -15,11 +15,11 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
   library(dplyr)
 
 # Load data
-  e_covs <- read.csv("data/enes.prepost.multiscale.occu.csv") 
-  o_covs <- read.csv("data/oss.prepost.multiscale.occu.csv")
+  #e_covs <- read.csv("data/enes.prepost.multiscale.occu.csv") 
+  #o_covs <- read.csv("data/oss.prepost.multiscale.occu.csv")
   #load("data/msc-enes-data-workspace.RData")
-  load("data/multiscale_output_and_data_082525_enes_small.RData")
-  E = a2
+  load("data/multiscale_output_and_data_082525_enes_full.RData")
+  E = a
   load("data/multiscale_output_and_data_082525_oss_full.RData")
   O = a
 
@@ -79,7 +79,7 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
   cat("Harvest-only lower than controls:", round(prob_HU_lower * 100, 1), "%\n")
   cat("Burn-salvage lower than controls:", round(prob_BS_lower * 100, 1), "%\n")
   cat("Burn-salvage worse than harvest-only:", round(prob_BS_worse_than_HU * 100, 1), "%\n")
-  
+  cat("Burn-salvage worse than harvest-burn:", round(prob_BS_worse_than_HB * 100, 1), "%\n")
   
   
   
@@ -130,6 +130,10 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
   cat("Harvest-only lower than controls:", round(prob_HU_lower * 100, 1), "%\n")
   cat("Burn-salvage lower than controls:", round(prob_BS_lower * 100, 1), "%\n")
   cat("Burn-salvage worse than harvest-only:", round(prob_BS_worse_than_HU * 100, 1), "%\n")
+  cat("Burn-salvage worse than harvest-burn:", round(prob_BS_worse_than_HB * 100, 1), "%\n")
+  
+  
+  
   
   # posterior density plots 
   
