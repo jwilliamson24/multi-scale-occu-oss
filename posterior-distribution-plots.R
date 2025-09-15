@@ -68,30 +68,30 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
       y_final = y_pos + (y / max(y)) * 0.8  # Scale and offset in one step
     ) %>%
     
-    # dashed line at 0
-    ggplot() +
+    ggplot() + 
     geom_vline(xintercept = 0, linetype = "dashed", color = "red", alpha = 0.7) +
     
-    # Add horizontal baseline for each parameter
+    # horizontal baseline for each parameter
     geom_hline(yintercept = 1:length(levels(posterior_data_O$parameter_clean)), 
                color = "gray20", alpha = 0.7, size = 0.5) +
     
-    # Draw density curves
+    # density curves
     geom_ribbon(aes(x = x, ymin = y_pos, ymax = y_final, group = parameter_clean),
-                fill = "steelblue", alpha = 0.7, size = 0.3) +
+                fill = "steelblue", alpha = 0.7, linewidth = 0.3) +
     
-    # Add parameter labels
+    # parameter labels
     scale_y_continuous(
       breaks = 1:length(levels(posterior_data_O$parameter_clean)),
       labels = levels(posterior_data_O$parameter_clean)
     ) +
-    
     labs(
       x = "Coefficient Value",
       title = "OSS: Posterior Distributions",
     ) +
     theme_minimal() +
     theme(
+      panel.background = element_rect(fill = "white", color = NA),
+      plot.background = element_rect(fill = "white", color = NA),
       panel.grid.major.y = element_blank(),
       panel.grid.minor = element_blank(),
       axis.text.y = element_text(vjust = 0, size = 12)
@@ -142,30 +142,30 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
       y_final = y_pos + (y / max(y)) * 0.8  # Scale and offset in one step
     ) %>%
     
-    # dashed line at 0
     ggplot() +
     geom_vline(xintercept = 0, linetype = "dashed", color = "red", alpha = 0.7) +
     
-    # Add horizontal baseline for each parameter
+    # horizontal baseline for each parameter
     geom_hline(yintercept = 1:length(levels(posterior_data_O$parameter_clean)), 
                color = "gray20", alpha = 0.7, size = 0.5) +
     
-    # Draw density curves
+    # density curves
     geom_ribbon(aes(x = x, ymin = y_pos, ymax = y_final, group = parameter_clean),
                 fill = "steelblue", alpha = 0.7, size = 0.3) +
     
-    # Add parameter labels
+    # parameter labels
     scale_y_continuous(
       breaks = 1:length(levels(posterior_data_O$parameter_clean)),
       labels = levels(posterior_data_O$parameter_clean)
     ) +
-    
     labs(
       x = "Coefficient Value",
       title = "ENES: Posterior Distributions",
     ) +
     theme_minimal() +
     theme(
+      panel.background = element_rect(fill = "white", color = NA),
+      plot.background = element_rect(fill = "white", color = NA),
       panel.grid.major.y = element_blank(),
       panel.grid.minor = element_blank(),
       axis.text.y = element_text(vjust = 0, size = 12)
