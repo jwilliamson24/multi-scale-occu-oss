@@ -274,21 +274,29 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
   
   
 # Plot with points and lines, automatically handling missing combinations
-  p2 <- ggplot(year_treatment_preds, aes(x = year, y = predicted, color = treatment)) +
+  p2 <- ggplot(year_treatment_preds, aes(x = year, y = predicted, color = treatment,
+                                         shape = treatment)) +
     geom_pointrange(aes(ymin = LCI, ymax = UCI), 
-                    position = position_dodge(width = 0.5),
+                    position = position_dodge(width = 0.6),
                     size = 0.8) +
     labs(x = "Year", 
          y = "Predicted Occupancy Probability",
          title = "Occupancy Estimates by Year and Treatment - OSS") +
     theme_minimal() +
-    theme(legend.position = "bottom",
+    theme(axis.text.x = element_text(size = 16),
+          axis.text.y = element_text(size = 16),
+          axis.title.x = element_text(size = 16),
+          axis.title.y = element_text(size = 16),
+          legend.position = "bottom",
+          legend.text = element_text(size = 16),
+          legend.title = element_text(size = 16),
+          plot.title = element_text(hjust = 0.5, face = "bold", size = 18),
           panel.grid.minor = element_blank(),
           panel.grid.major.x = element_blank()) +
     scale_x_continuous(breaks = unique(year_treatment_preds$year))
   
   
-  ggsave("figures/o-yearly-preds-new.png", plot = p2, dpi = 300, bg = "white")
+  ggsave("figures/o-yearly-preds-shape.png", plot = p2, dpi = 300, bg = "white")
 
   
   

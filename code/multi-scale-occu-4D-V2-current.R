@@ -567,6 +567,23 @@ for(chain in 1:n.chains){
     # all above 1000 ! even for the small sample subset 
 
 
+    
+# Output structure 
 
-
-
+    # mcmc.list structure
+    str(a)
+    length(a)
+    sapply(a, dim)
+    class(a)
+    
+    str(a2)
+    
+    # number of rows in each chain    
+    sapply(a, function(x) dim(x)[1])  
+    
+    sapply(a2, function(x) dim(x)[1])
+    
+    
+    
+    
+    

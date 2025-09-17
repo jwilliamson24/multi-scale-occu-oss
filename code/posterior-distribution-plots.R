@@ -146,7 +146,7 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
     geom_vline(xintercept = 0, linetype = "dashed", color = "red", alpha = 0.7) +
     
     # horizontal baseline for each parameter
-    geom_hline(yintercept = 1:length(levels(posterior_data_O$parameter_clean)), 
+    geom_hline(yintercept = 1:length(levels(posterior_data_E$parameter_clean)), 
                color = "gray20", alpha = 0.7, size = 0.5) +
     
     # density curves
@@ -155,8 +155,8 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
     
     # parameter labels
     scale_y_continuous(
-      breaks = 1:length(levels(posterior_data_O$parameter_clean)),
-      labels = levels(posterior_data_O$parameter_clean)
+      breaks = 1:length(levels(posterior_data_E$parameter_clean)),
+      labels = levels(posterior_data_E$parameter_clean)
     ) +
     labs(
       x = "Coefficient Value",

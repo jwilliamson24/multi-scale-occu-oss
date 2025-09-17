@@ -205,9 +205,19 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
     geom_errorbar(aes(ymin = LCI, ymax = UCI), width = 0.1, position = position_dodge(0.5))+
     ylab(bquote("Predicted "*psi~""))+ xlab("Treatment Group")+
     labs(title="Predicted Occupancy Estimates by Treatment - ENES") +
-    theme_classic()
+    theme_classic() +
+    theme(axis.text.x = element_text(size = 16),
+          axis.text.y = element_text(size = 16),
+          axis.title.x = element_text(size = 16),
+          axis.title.y = element_text(size = 16),
+          legend.position = "bottom",
+          legend.text = element_text(size = 16),
+          legend.title = element_text(size = 16),
+          plot.title = element_text(hjust = 0.5, face = "bold", size = 18),
+          panel.grid.minor = element_blank(),
+          panel.grid.major.x = element_blank())
   
-  #ggsave("figures/e-trt-psi-preds.png", plot = p, dpi = 500)  
+  ggsave("figures/e-trt-psi-preds.png", plot = p, dpi = 500)  
   
 
 # add species column for combined plot
@@ -379,14 +389,24 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
   
   # Plot
   
-  p <-  ggplot(alltreatment_preds2, aes(x = treatment, y = predicted)) +
+  p2 <-  ggplot(alltreatment_preds2, aes(x = treatment, y = predicted)) +
     geom_point(position = position_dodge(0.5), size = 1.5)+ 
     geom_errorbar(aes(ymin = LCI, ymax = UCI), width = 0.1, position = position_dodge(0.5))+
     ylab(bquote("Predicted "*psi~""))+ xlab("Treatment Group")+
     labs(title="Predicted Occupancy Estimates by Treatment - OSS") +
-    theme_classic()
+    theme_classic() +
+    theme(axis.text.x = element_text(size = 16),
+          axis.text.y = element_text(size = 16),
+          axis.title.x = element_text(size = 16),
+          axis.title.y = element_text(size = 16),
+          legend.position = "bottom",
+          legend.text = element_text(size = 16),
+          legend.title = element_text(size = 16),
+          plot.title = element_text(hjust = 0.5, face = "bold", size = 18),
+          panel.grid.minor = element_blank(),
+          panel.grid.major.x = element_blank())
   
-  #ggsave("figures/o-trt-psi-preds.png", plot = p, dpi = 500)  
+  ggsave("figures/o-trt-psi-preds.png", plot = p2, dpi = 500)  
   
 
 # add species column for combined plot
@@ -397,24 +417,28 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
   
   both_preds <- rbind(alltreatment_preds, alltreatment_preds2)
   
-  p <- ggplot(both_preds, aes(x = treatment, y = predicted, color = species, shape = species)) +
-    geom_point(position = position_dodge(0.5), size = 2.8) +
+  p3 <- ggplot(both_preds, aes(x = treatment, y = predicted, color = species, 
+                               shape = species, linetype = species)) +
+    geom_point(position = position_dodge(0.5), size = 4) +
     geom_errorbar(aes(ymin = LCI, ymax = UCI), width = 0.1, size = 0.8, position = position_dodge(0.5)) +
     scale_color_manual(values = c("ENES" = "#F95738", "OSS" = "#00798C")) +
+    scale_linetype_manual(values = c("ENES" = "solid", "OSS" = "dashed")) +
     ylab(bquote("Predicted "*psi~"")) +
     xlab("Treatment Group") +
     labs(title = "Predicted Occupancy by Treatment and Species") +
     theme_classic() +
     theme(
-      axis.text.x = element_text(size = 14),
-      axis.text.y = element_text(size = 14),
-      axis.title.x = element_text(size = 14),
-      axis.title.y = element_text(size = 14),
+      axis.text.x = element_text(size = 16),
+      axis.text.y = element_text(size = 16),
+      axis.title.x = element_text(size = 16),
+      axis.title.y = element_text(size = 16),
       legend.position = "bottom",
+      legend.text = element_text(size = 16),
+      legend.title = element_text(size = 16),
       strip.text = element_text(size = 15, face = "bold"),
-      plot.title = element_text(hjust = 0.5, face = "bold"))
+      plot.title = element_text(hjust = 0.5, face = "bold", size = 18))
   
-  #ggsave("figures/both-spp-trt-psi-preds.png", plot = p, dpi = 500)
+  ggsave("figures/both-spp-trt-psi-preds.png", plot = p3, dpi = 500)
   
   
 ##### Coefficient Plot ----------------------------------------------------------
@@ -1153,7 +1177,7 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
   
   
   p <- ggplot(occu_cov_preds2, aes(x = cov_zsc, y = predicted,
-                                  color = species, fill = species)) +
+                                  color = species, fill = species, linetype = species)) +
     geom_line(size = 1) +
     geom_ribbon(aes(ymin = LCI, ymax = UCI), alpha = 0.2, color = NA) +
     ylab(bquote("Predicted "*psi~"")) +
@@ -1163,6 +1187,7 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
          y = expression("Predicted "*psi)) +
     scale_color_manual(values = c("ENES" = "#F95738", "OSS" = "#00798C")) +
     scale_fill_manual(values = c("ENES" = "#F95738", "OSS" = "#00798C")) +
+    scale_linetype_manual(values = c("ENES" = "solid", "OSS" = "twodash")) +
     theme_classic() +
     theme(
       axis.text.x = element_text(size = 14),

@@ -17,8 +17,9 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
 # Load data
   #e_covs <- read.csv("data/enes.prepost.multiscale.occu.csv") 
   #o_covs <- read.csv("data/oss.prepost.multiscale.occu.csv")
-  #load("data/msc-enes-data-workspace.RData")
+  load("data/msc-enes-data-workspace-V2.RData")
   load("data/multiscale_output_and_data_082525_enes_full.RData")
+  #load("data/multiscale_output_and_data_072125_enes_full.RData")
   E = a
   load("data/multiscale_output_and_data_082525_oss_full.RData")
   O = a
@@ -30,112 +31,221 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
   O2 = runjags::combine.mcmc(O)  
   
   
-#### OSS - calculate posterior probabilities from MCMC samples ------------------
+#### OSS ---------------------------------------------------------------------
   
   
-  # Extract posterior samples for each treatment effect from combined MCMC object
-  samples_HU <- O2[, "beta3.psi.HU"]  # harvest only
-  samples_BS <- O2[, "beta4.psi.BS"]  # burn-salvage  
-  samples_HB <- O2[, "beta2.psi.HB"]  # harvest-burn
-  samples_BU <- O2[, "beta1.psi.BU"]  # burn only
+  # Calculate 95% credible intervals
+  # significant effect if CI does not include zero
+  quantile(O2[,"beta1.psi.BU"], c(0.025, 0.975))    # Burned-Unharvested
+  quantile(O2[,"beta2.psi.HB"], c(0.025, 0.975))    # Harvested-Burned  
+  quantile(O2[,"beta3.psi.HU"], c(0.025, 0.975))    # Harvested-Unburned      ## excludes zero
+  quantile(O2[,"beta4.psi.BS"], c(0.025, 0.975))    # Burned-Salvage          ## excludes zero
+  # these are the same as in summary(O)
   
   
-  # Calculate probabilities that treatments are LOWER than controls
-  # (negative coefficients mean lower occupancy than baseline)
+  # Check proportion of samples < 0 
+  # significant neg effect if 95% samples <0
+  mean(O2[,"beta1.psi.BU"] < 0)  # BU           ## no effect
+  mean(O2[,"beta2.psi.HB"] < 0)  # HB           ## moderate neg effect
+  mean(O2[,"beta3.psi.HU"] < 0)  # HU           ## significant neg effect
+  mean(O2[,"beta4.psi.BS"] < 0)  # BS           ## significant neg effect
   
-  # Probability that harvest-only is lower than controls
-  prob_HU_lower <- mean(samples_HU < 0)
-  cat("Probability HU < Control:", prob_HU_lower, "\n")
-  
-  mean(samples_HU)
-  table(samples_HU<0)
-  
-  # Probability that burn-salvage is lower than controls  
-  prob_BS_lower <- mean(samples_BS < 0)
-  cat("Probability BS < Control:", prob_BS_lower, "\n")
-  
-  # Probability that harvest-burn is lower than controls
-  prob_HB_lower <- mean(samples_HB < 0)
-  cat("Probability HB < Control:", prob_HB_lower, "\n")
-  
-  # Probability that burn-only is lower than controls
-  prob_BU_lower <- mean(samples_BU < 0)
-  cat("Probability BU < Control:", prob_BU_lower, "\n")
-  
-  
-  # Compare treatments to each other
   
   # Probability that burn-salvage is worse than harvest-only
-  prob_BS_worse_than_HU <- mean(samples_BS < samples_HU)
-  cat("Probability BS < HU:", prob_BS_worse_than_HU, "\n")
+  c1 <- mean(O2[,"beta4.psi.BS"] < O2[,"beta3.psi.HU"])
   
+ 
   # Probability that burn-salvage is worse than harvest-burn
-  prob_BS_worse_than_HB <- mean(samples_BS < samples_HB)
-  cat("Probability BS < HB:", prob_BS_worse_than_HB, "\n")
+  c2 <- mean(O2[,"beta4.psi.BS"] < O2[,"beta2.psi.HB"])
   
   
   # Convert to percentages for reporting
   cat("\nFor reporting:\n")
-  cat("Harvest-only lower than controls:", round(prob_HU_lower * 100, 1), "%\n")
-  cat("Burn-salvage lower than controls:", round(prob_BS_lower * 100, 1), "%\n")
-  cat("Burn-salvage worse than harvest-only:", round(prob_BS_worse_than_HU * 100, 1), "%\n")
-  cat("Burn-salvage worse than harvest-burn:", round(prob_BS_worse_than_HB * 100, 1), "%\n")
+  cat("Harvest-only lower than controls:", round(mean(O2[,"beta3.psi.HU"] < 0) * 100, 1), "%\n")
+  cat("Burn-salvage lower than controls:", round(mean(O2[,"beta4.psi.BS"] < 0) * 100, 1), "%\n")
+  cat("Burn-salvage worse than harvest-only:", round(c1 * 100, 1), "%\n")
+  cat("Burn-salvage worse than harvest-burn:", round(c2 * 100, 1), "%\n")
   
   
   
   
-#### ENES - calculate posterior probabilities from MCMC samples ------------------
+#### ENES ---------------------------------------------------------------------
   
   
-  # Extract posterior samples for each treatment effect from combined MCMC object
-  samples_HU_e <- E2[, "beta3.psi.HU"]  # harvest only
-  samples_BS_e <- E2[, "beta4.psi.BS"]  # burn-salvage  
-  samples_HB_e <- E2[, "beta2.psi.HB"]  # harvest-burn
-  samples_BU_e <- E2[, "beta1.psi.BU"]  # burn only
+  # Calculate 95% credible intervals
+  # significant effect if CI does not include zero
+  quantile(E2[,"beta1.psi.BU"], c(0.025, 0.975))    # Burned-Unharvested
+  quantile(E2[,"beta2.psi.HB"], c(0.025, 0.975))    # Harvested-Burned        ## excludes zero
+  quantile(E2[,"beta3.psi.HU"], c(0.025, 0.975))    # Harvested-Unburned      ## excludes zero
+  quantile(E2[,"beta4.psi.BS"], c(0.025, 0.975))    # Burned-Salvage          ## excludes zero
+  # these are the same as in summary(E)
   
   
-  # Calculate probabilities that treatments are LOWER than controls
-  # (negative coefficients mean lower occupancy than baseline)
+  # Check proportion of samples < 0 
+  # significant neg effect if 95% samples <0
+  mean(E2[,"beta1.psi.BU"] < 0)  # BU           ## moderate negative effect
+  mean(E2[,"beta2.psi.HB"] < 0)  # HB           ## significant negative effect
+  mean(E2[,"beta3.psi.HU"] < 0)  # HU           ## significant negative effect
+  mean(E2[,"beta4.psi.BS"] < 0)  # BS           ## significant negative effect
   
-  # Probability that harvest-only is lower than controls
-  prob_HU_lower <- mean(samples_HU_e < 0)
-  cat("Probability HU < Control:", prob_HU_lower, "\n")
-  
-  # Probability that burn-salvage is lower than controls  
-  prob_BS_lower <- mean(samples_BS_e < 0)
-  cat("Probability BS < Control:", prob_BS_lower, "\n")
-  
-  # Probability that harvest-burn is lower than controls
-  prob_HB_lower <- mean(samples_HB_e < 0)
-  cat("Probability HB < Control:", prob_HB_lower, "\n")
-  
-  # Probability that burn-only is lower than controls
-  prob_BU_lower <- mean(samples_BU_e < 0)
-  cat("Probability BU < Control:", prob_BU_lower, "\n")
-  
-  
-  # Compare treatments to each other
   
   # Probability that burn-salvage is worse than harvest-only
-  prob_BS_worse_than_HU <- mean(samples_BS_e < samples_HU)
-  cat("Probability BS < HU:", prob_BS_worse_than_HU, "\n")
+  c3 <- mean(E2[,"beta4.psi.BS"] < E2[,"beta3.psi.HU"])
   
+ 
   # Probability that burn-salvage is worse than harvest-burn
-  prob_BS_worse_than_HB <- mean(samples_BS_e < samples_HB)
-  cat("Probability BS < HB:", prob_BS_worse_than_HB, "\n")
+  c4 <- mean(E2[,"beta4.psi.BS"] < E2[,"beta2.psi.HB"])
   
   
   # Convert to percentages for reporting
   cat("\nFor reporting:\n")
-  cat("Harvest-only lower than controls:", round(prob_HU_lower * 100, 1), "%\n")
-  cat("Burn-salvage lower than controls:", round(prob_BS_lower * 100, 1), "%\n")
-  cat("Burn-salvage worse than harvest-only:", round(prob_BS_worse_than_HU * 100, 1), "%\n")
-  cat("Burn-salvage worse than harvest-burn:", round(prob_BS_worse_than_HB * 100, 1), "%\n")
+  cat("Harvest-only lower than controls:", round(mean(E2[,"beta3.psi.HU"] < 0) * 100, 1), "%\n")
+  cat("Burn-salvage lower than controls:", round(mean(E2[,"beta4.psi.BS"] < 0) * 100, 1), "%\n")
+  cat("Burn-salvage worse than harvest-only:", round(c3 * 100, 1), "%\n")
+  cat("Burn-salvage worse than harvest-burn:", round(c4 * 100, 1), "%\n")
+  
+  
+  
+#### Using attach.nimble function from Josh Stewarts Bayes class ---------------
+
+  
+## ENES
+  
+  # Convert mcmc.list to the format attach.nimble expects
+  mcmc.output.e <- list()
+  mcmc.output.e$chain1 <- as.matrix(E[[1]])
+  mcmc.output.e$chain2 <- as.matrix(E[[2]])
+  mcmc.output.e$chain3 <- as.matrix(E[[3]])
+  
+  attach.nimble(mcmc.output.e)
+
+  hist(beta9.psi.dwd)  
+  median(beta9.psi.dwd)
+  mean(beta9.psi.dwd<0)*100
+  apply(beta9.psi.dwd,2,quantile, c(0.025, 0.5, 0.975))
+  
+  # There is a significant negative effect of dwd on ENES occupancy
+  # CI includes zero, so it isn't an incredibly strong effect
+  
+
+# Table with estimates and CI
+  
+  params <- c("beta0.psi", "beta0.theta", "alpha0", "beta1.psi.BU", "beta2.psi.HB", 
+              "beta3.psi.HU", "beta4.psi.BS", "beta5.psi.lat", "beta6.psi.lon", 
+              "beta8.psi.elev", "beta9.psi.dwd", "alpha1", "alpha2")
+  
+  # Create empty dataframe
+  summary_table_e <- data.frame(
+    Parameter = params,
+    Mean = NA,
+    Median = NA,
+    CI_2.5 = NA,
+    CI_97.5 = NA,
+    Percent_Pos = NA,
+    Percent_Neg = NA
+  )
+  
+  # Use a for loop to fill in the values
+    for(i in 1:length(params)) {
+      param_name <- params[i]
+      
+      if(exists(param_name)) {     # Check if parameter exists in environment
+        param_data <- get(param_name)
+        
+        if(is.matrix(param_data)) {       # Convert to vector if it's a matrix
+          param_data <- as.vector(param_data)
+        }
+        
+        # Calculate statistics
+        summary_table_e[i, "Mean"] <- mean(param_data)
+        summary_table_e[i, "Median"] <- median(param_data)
+        summary_table_e[i, "CI_2.5"] <- quantile(param_data, 0.025)
+        summary_table_e[i, "CI_97.5"] <- quantile(param_data, 0.975)
+        summary_table_e[i, "Percent_Pos"] <- mean(param_data > 0) * 100
+        summary_table_e[i, "Percent_Neg"] <- mean(param_data < 0) * 100
+        
+      } else {
+        cat("Parameter", param_name, "not found\n")
+      }
+    }
+  
+  # Round the results
+  summary_table_e$Mean <- round(summary_table_e$Mean, 3)
+  summary_table_e$Median <- round(summary_table_e$Median, 3)
+  summary_table_e$CI_2.5 <- round(summary_table_e$CI_2.5, 3)
+  summary_table_e$CI_97.5 <- round(summary_table_e$CI_97.5, 3)
+  summary_table_e$Percent_Pos <- round(summary_table_e$Percent_Pos, 2)
+  summary_table_e$Percent_Neg <- round(summary_table_e$Percent_Neg, 2)
+  
+  print(summary_table_e)
+  
+  write.csv(summary_table_e, "e_parameter_summary.csv", row.names = FALSE)
   
   
   
   
-  # posterior density plots 
+## OSS
+
+  mcmc.output.o <- list()
+  mcmc.output.o$chain1 <- as.matrix(O[[1]])
+  mcmc.output.o$chain2 <- as.matrix(O[[2]])
+  mcmc.output.o$chain3 <- as.matrix(O[[3]])
+
+  attach.nimble(mcmc.output.o)
+  
+# Results Table
+  
+  summary_table_o <- data.frame(
+    Parameter = params,
+    Mean = NA,
+    Median = NA,
+    CI_2.5 = NA,
+    CI_97.5 = NA,
+    Percent_Pos = NA,
+    Percent_Neg = NA
+  )
+  
+  # Use a for loop to fill in the values
+  for(i in 1:length(params)) {
+    param_name <- params[i]
+    
+    if(exists(param_name)) {     # Check if parameter exists in environment
+      param_data <- get(param_name)
+      
+      if(is.matrix(param_data)) {       # Convert to vector if it's a matrix
+        param_data <- as.vector(param_data)
+      }
+      
+      # Calculate statistics
+      summary_table_o[i, "Mean"] <- mean(param_data)
+      summary_table_o[i, "Median"] <- median(param_data)
+      summary_table_o[i, "CI_2.5"] <- quantile(param_data, 0.025)
+      summary_table_o[i, "CI_97.5"] <- quantile(param_data, 0.975)
+      summary_table_o[i, "Percent_Pos"] <- mean(param_data > 0) * 100
+      summary_table_o[i, "Percent_Neg"] <- mean(param_data < 0) * 100
+      
+    } else {
+      cat("Parameter", param_name, "not found\n")
+    }
+  }
+  
+  # Round the results
+  summary_table_o$Mean <- round(summary_table_o$Mean, 3)
+  summary_table_o$Median <- round(summary_table_o$Median, 3)
+  summary_table_o$CI_2.5 <- round(summary_table_o$CI_2.5, 3)
+  summary_table_o$CI_97.5 <- round(summary_table_o$CI_97.5, 3)
+  summary_table_o$Percent_Pos <- round(summary_table_o$Percent_Pos, 2)
+  summary_table_o$Percent_Neg <- round(summary_table_o$Percent_Neg, 2)
+  
+  # View the table
+  print(summary_table_o)
+  
+  write.csv(summary_table_o, "o_parameter_summary.csv", row.names = FALSE)
+  
+  
+  
+  
+  
   
   
   
