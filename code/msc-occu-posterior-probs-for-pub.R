@@ -15,11 +15,9 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
   library(dplyr)
 
 # Load data
-  #e_covs <- read.csv("data/enes.prepost.multiscale.occu.csv") 
-  #o_covs <- read.csv("data/oss.prepost.multiscale.occu.csv")
+  source("data/attach.nimble_v2 copy.R")
   load("data/msc-enes-data-workspace-V2.RData")
   load("data/multiscale_output_and_data_082525_enes_full.RData")
-  #load("data/multiscale_output_and_data_072125_enes_full.RData")
   E = a
   load("data/multiscale_output_and_data_082525_oss_full.RData")
   O = a
@@ -32,7 +30,6 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
   
   
 #### OSS ---------------------------------------------------------------------
-  
   
   # Calculate 95% credible intervals
   # significant effect if CI does not include zero
@@ -182,6 +179,9 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
   write.csv(summary_table_e, "e_parameter_summary.csv", row.names = FALSE)
   
   
+  # detection probability = 0.163
+  plogis(-1.636) # back transform the mean of alpha 0
+  
   
   
 ## OSS
@@ -243,7 +243,8 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
   write.csv(summary_table_o, "o_parameter_summary.csv", row.names = FALSE)
   
   
-  
+  # detection probability = 0.256
+  plogis(-1.068) # back transform the mean of alpha 0
   
   
   
