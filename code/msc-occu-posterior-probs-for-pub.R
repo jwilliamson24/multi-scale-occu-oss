@@ -13,6 +13,8 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
 ## Setup 
   library(ggplot2)
   library(dplyr)
+  library(tibble)
+  library(nimble)
 
 # Load data
   source("data/attach.nimble_v2 copy.R")
@@ -28,83 +30,10 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
   E2 = runjags::combine.mcmc(E)
   O2 = runjags::combine.mcmc(O)  
   
-  
-#### OSS ---------------------------------------------------------------------
-  
-  # Calculate 95% credible intervals
-  # significant effect if CI does not include zero
-  quantile(O2[,"beta1.psi.BU"], c(0.025, 0.975))    # Burned-Unharvested
-  quantile(O2[,"beta2.psi.HB"], c(0.025, 0.975))    # Harvested-Burned  
-  quantile(O2[,"beta3.psi.HU"], c(0.025, 0.975))    # Harvested-Unburned      ## excludes zero
-  quantile(O2[,"beta4.psi.BS"], c(0.025, 0.975))    # Burned-Salvage          ## excludes zero
-  # these are the same as in summary(O)
-  
-  
-  # Check proportion of samples < 0 
-  # significant neg effect if 95% samples <0
-  mean(O2[,"beta1.psi.BU"] < 0)  # BU           ## no effect
-  mean(O2[,"beta2.psi.HB"] < 0)  # HB           ## moderate neg effect
-  mean(O2[,"beta3.psi.HU"] < 0)  # HU           ## significant neg effect
-  mean(O2[,"beta4.psi.BS"] < 0)  # BS           ## significant neg effect
-  
-  
-  # Probability that burn-salvage is worse than harvest-only
-  c1 <- mean(O2[,"beta4.psi.BS"] < O2[,"beta3.psi.HU"])
-  
- 
-  # Probability that burn-salvage is worse than harvest-burn
-  c2 <- mean(O2[,"beta4.psi.BS"] < O2[,"beta2.psi.HB"])
-  
-  
-  # Convert to percentages for reporting
-  cat("\nFor reporting:\n")
-  cat("Harvest-only lower than controls:", round(mean(O2[,"beta3.psi.HU"] < 0) * 100, 1), "%\n")
-  cat("Burn-salvage lower than controls:", round(mean(O2[,"beta4.psi.BS"] < 0) * 100, 1), "%\n")
-  cat("Burn-salvage worse than harvest-only:", round(c1 * 100, 1), "%\n")
-  cat("Burn-salvage worse than harvest-burn:", round(c2 * 100, 1), "%\n")
-  
-  
-  
-  
-#### ENES ---------------------------------------------------------------------
-  
-  
-  # Calculate 95% credible intervals
-  # significant effect if CI does not include zero
-  quantile(E2[,"beta1.psi.BU"], c(0.025, 0.975))    # Burned-Unharvested
-  quantile(E2[,"beta2.psi.HB"], c(0.025, 0.975))    # Harvested-Burned        ## excludes zero
-  quantile(E2[,"beta3.psi.HU"], c(0.025, 0.975))    # Harvested-Unburned      ## excludes zero
-  quantile(E2[,"beta4.psi.BS"], c(0.025, 0.975))    # Burned-Salvage          ## excludes zero
-  # these are the same as in summary(E)
-  
-  
-  # Check proportion of samples < 0 
-  # significant neg effect if 95% samples <0
-  mean(E2[,"beta1.psi.BU"] < 0)  # BU           ## moderate negative effect
-  mean(E2[,"beta2.psi.HB"] < 0)  # HB           ## significant negative effect
-  mean(E2[,"beta3.psi.HU"] < 0)  # HU           ## significant negative effect
-  mean(E2[,"beta4.psi.BS"] < 0)  # BS           ## significant negative effect
-  
-  
-  # Probability that burn-salvage is worse than harvest-only
-  c3 <- mean(E2[,"beta4.psi.BS"] < E2[,"beta3.psi.HU"])
-  
- 
-  # Probability that burn-salvage is worse than harvest-burn
-  c4 <- mean(E2[,"beta4.psi.BS"] < E2[,"beta2.psi.HB"])
-  
-  
-  # Convert to percentages for reporting
-  cat("\nFor reporting:\n")
-  cat("Harvest-only lower than controls:", round(mean(E2[,"beta3.psi.HU"] < 0) * 100, 1), "%\n")
-  cat("Burn-salvage lower than controls:", round(mean(E2[,"beta4.psi.BS"] < 0) * 100, 1), "%\n")
-  cat("Burn-salvage worse than harvest-only:", round(c3 * 100, 1), "%\n")
-  cat("Burn-salvage worse than harvest-burn:", round(c4 * 100, 1), "%\n")
-  
-  
-  
-#### Using attach.nimble function from Josh Stewarts Bayes class ---------------
 
+#### Attach.nimble: mean, median, CI, percent pos/neg for each parameter ---------------
+
+# Using attach.nimble function from Josh Stewarts Bayes class
   
 ## ENES
   
@@ -176,7 +105,7 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
   
   print(summary_table_e)
   
-  write.csv(summary_table_e, "e_parameter_summary.csv", row.names = FALSE)
+  #write.csv(summary_table_e, "e_parameter_summary.csv", row.names = FALSE)
   
   
   # detection probability = 0.163
@@ -193,7 +122,11 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
 
   attach.nimble(mcmc.output.o)
   
-# Results Table
+# Table with estimates and CI
+  
+  params <- c("beta0.psi", "beta0.theta", "alpha0", "beta1.psi.BU", "beta2.psi.HB", 
+              "beta3.psi.HU", "beta4.psi.BS", "beta5.psi.lat", "beta6.psi.lon", 
+              "beta8.psi.elev", "beta9.psi.dwd", "alpha1", "alpha2")
   
   summary_table_o <- data.frame(
     Parameter = params,
@@ -245,8 +178,141 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
   
   # detection probability = 0.256
   plogis(-1.068) # back transform the mean of alpha 0
+
   
   
+#### Calculate predicted occupancy probabilities for each treatment ---------------- 
+  
+  
+## ENES
+  
+  if("beta0.psi" %in% summary_table_e$Parameter) {
+    # get the intercept (control)
+    intercept <- summary_table_e$Mean[summary_table_e$Parameter == "beta0.psi"]
+    
+    # reference treatment occupancy - convert logit to probability scale
+    ref_occupancy <- plogis(intercept)
+    
+    # add the treatment effect to the control estimate, then convert to prob scale
+    occupancy_results_e <- data.frame(
+      Parameter = treatment_effects$Parameter,
+      Occupancy = plogis(intercept + treatment_effects$Mean),
+      Percent_Change = ((plogis(intercept + treatment_effects$Mean) - ref_occupancy) / ref_occupancy) * 100
+    )
+    
+    # Add reference row at the top
+    occupancy_results_e <- rbind(
+      data.frame(Parameter = "Reference", Occupancy = ref_occupancy, Percent_Change = 0),
+      occupancy_results_e
+    )
+    
+    print(occupancy_results_e)
+  }
+
+  
+  
+## OSS
+  
+  if("beta0.psi" %in% summary_table_o$Parameter) {
+    # get the intercept (control)
+    intercept <- summary_table_o$Mean[summary_table_o$Parameter == "beta0.psi"]
+    
+    # reference treatment occupancy - convert logit to probability scale
+    ref_occupancy <- plogis(intercept)
+    
+    # add the treatment effect to the control estimate, then convert to prob scale
+    occupancy_results_o <- data.frame(
+      Parameter = treatment_effects$Parameter,
+      Occupancy = plogis(intercept + treatment_effects$Mean),
+      Percent_Change = ((plogis(intercept + treatment_effects$Mean) - ref_occupancy) / ref_occupancy) * 100
+    )
+    
+    # Add reference row at the top
+    occupancy_results_o <- rbind(
+      data.frame(Parameter = "Reference", Occupancy = ref_occupancy, Percent_Change = 0),
+      occupancy_results_o
+    )
+    
+    print(occupancy_results_o)
+  }
+  
+  
+  
+  
+#### CI, percent neg, using old methods from Claude - not using ----------------------------------
+  
+  # OSS 
+  
+  # Calculate 95% credible intervals
+  # significant effect if CI does not include zero
+  quantile(O2[,"beta1.psi.BU"], c(0.025, 0.975))    # Burned-Unharvested
+  quantile(O2[,"beta2.psi.HB"], c(0.025, 0.975))    # Harvested-Burned  
+  quantile(O2[,"beta3.psi.HU"], c(0.025, 0.975))    # Harvested-Unburned      ## excludes zero
+  quantile(O2[,"beta4.psi.BS"], c(0.025, 0.975))    # Burned-Salvage          ## excludes zero
+  # these are the same as in summary(O)
+  
+  
+  # Check proportion of samples < 0 
+  # significant neg effect if 95% samples <0
+  mean(O2[,"beta1.psi.BU"] < 0)  # BU           ## no effect
+  mean(O2[,"beta2.psi.HB"] < 0)  # HB           ## moderate neg effect
+  mean(O2[,"beta3.psi.HU"] < 0)  # HU           ## significant neg effect
+  mean(O2[,"beta4.psi.BS"] < 0)  # BS           ## significant neg effect
+  
+  
+  # Probability that burn-salvage is worse than harvest-only
+  c1 <- mean(O2[,"beta4.psi.BS"] < O2[,"beta3.psi.HU"])
+  
+  
+  # Probability that burn-salvage is worse than harvest-burn
+  c2 <- mean(O2[,"beta4.psi.BS"] < O2[,"beta2.psi.HB"])
+  
+  # Probability that harvest-burn is higher than harvest-only
+  c5 <- mean(O2[,"beta2.psi.HB"] > O2[,"beta3.psi.HU"])
+  
+  # Convert to percentages for reporting
+  cat("\nFor reporting:\n")
+  cat("Harvest-only lower than controls:", round(mean(O2[,"beta3.psi.HU"] < 0) * 100, 1), "%\n")
+  cat("Burn-salvage lower than controls:", round(mean(O2[,"beta4.psi.BS"] < 0) * 100, 1), "%\n")
+  cat("Burn-salvage worse than harvest-only:", round(c1 * 100, 1), "%\n")
+  cat("Burn-salvage worse than harvest-burn:", round(c2 * 100, 1), "%\n")
+  cat("Harvest-burn higher than harvest-only:", round(c5 * 100, 1), "%\n")
+  
+  
+  
+  # ENES 
+  
+  # Calculate 95% credible intervals
+  # significant effect if CI does not include zero
+  quantile(E2[,"beta1.psi.BU"], c(0.025, 0.975))    # Burned-Unharvested
+  quantile(E2[,"beta2.psi.HB"], c(0.025, 0.975))    # Harvested-Burned        ## excludes zero
+  quantile(E2[,"beta3.psi.HU"], c(0.025, 0.975))    # Harvested-Unburned      ## excludes zero
+  quantile(E2[,"beta4.psi.BS"], c(0.025, 0.975))    # Burned-Salvage          ## excludes zero
+  # these are the same as in summary(E)
+  
+  
+  # Check proportion of samples < 0 
+  # significant neg effect if 95% samples <0
+  mean(E2[,"beta1.psi.BU"] < 0)  # BU           ## moderate negative effect
+  mean(E2[,"beta2.psi.HB"] < 0)  # HB           ## significant negative effect
+  mean(E2[,"beta3.psi.HU"] < 0)  # HU           ## significant negative effect
+  mean(E2[,"beta4.psi.BS"] < 0)  # BS           ## significant negative effect
+  
+  
+  # Probability that burn-salvage is worse than harvest-only
+  c3 <- mean(E2[,"beta4.psi.BS"] < E2[,"beta3.psi.HU"])
+  
+  
+  # Probability that burn-salvage is worse than harvest-burn
+  c4 <- mean(E2[,"beta4.psi.BS"] < E2[,"beta2.psi.HB"])
+  
+  
+  # Convert to percentages for reporting
+  cat("\nFor reporting:\n")
+  cat("Harvest-only lower than controls:", round(mean(E2[,"beta3.psi.HU"] < 0) * 100, 1), "%\n")
+  cat("Burn-salvage lower than controls:", round(mean(E2[,"beta4.psi.BS"] < 0) * 100, 1), "%\n")
+  cat("Burn-salvage worse than harvest-only:", round(c3 * 100, 1), "%\n")
+  cat("Burn-salvage worse than harvest-burn:", round(c4 * 100, 1), "%\n")
   
   
   

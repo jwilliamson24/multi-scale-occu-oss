@@ -33,7 +33,7 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
 
 #### Plot predicted occupancy for each year and treatment 
   
-  b <- O2  # # # # choose species # # # #
+  b <- E2  # # # # choose species # # # #
   
   # number of posterior samples
   n.samples = nrow(b)
@@ -273,6 +273,12 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
   row.names(year_treatment_preds) <- NULL
   
   
+  # save as you go to have one for each spp
+  # year_treatment_preds_e <- year_treatment_preds
+  # year_treatment_preds_o <- year_treatment_preds
+  
+  
+  
 # Plot with points and lines, automatically handling missing combinations
   p2 <- ggplot(year_treatment_preds, aes(x = year, y = predicted, color = treatment,
                                          shape = treatment)) +
@@ -300,14 +306,35 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
 
   
   
-  
-  
-  
-  
+
   
 # yearly detection (luke)
   enes %>% mutate(detect = ifelse(V1 == 1 | V2 == 1 | V3 == 1, 1, 0)) %>% filter(UU == 1) %>% group_by(year) %>% summarise(detect = sum(detect) / n())
 
  
+
+# 2023-2024 Predictions for paper
+  
+  # Average predictions across years 8 and 9 for each treatment
+  hb_avg <- year_treatment_preds_e[year_treatment_preds_e$treatment == "HB" & year_treatment_preds_e$year %in% c(8, 9), ]
+  hu_avg <- year_treatment_preds_e[year_treatment_preds_e$treatment == "HU" & year_treatment_preds_e$year %in% c(8, 9), ]
+  bu_avg <- year_treatment_preds_e[year_treatment_preds_e$treatment == "BU" & year_treatment_preds_e$year %in% c(8, 9), ]
+  uu_avg <- year_treatment_preds_e[year_treatment_preds_e$treatment == "UU" & year_treatment_preds_e$year %in% c(8, 9), ]
+  
+  # Calculate average predictions
+  hb_pred_avg <- mean(hb_avg$predicted)
+  hu_pred_avg <- mean(hu_avg$predicted)
+  bu_pred_avg <- mean(bu_avg$predicted)
+  uu_pred_avg <- mean(uu_avg$predicted)
+  
+  # Calculate average CI widths (for uncertainty estimation)
+  hb_ci_width <- mean(hb_avg$UCI - hb_avg$LCI)
+  hu_ci_width <- mean(hu_avg$UCI - hu_avg$LCI)
+  bu_ci_width <- mean(bu_avg$UCI - bu_avg$LCI)  
+  uu_ci_width <- mean(uu_avg$UCI - uu_avg$LCI)  
+  
+  
+  
+  
   
   
