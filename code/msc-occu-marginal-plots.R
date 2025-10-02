@@ -595,11 +595,14 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
         geom_ribbon(aes(ymin = LCI, ymax = UCI), alpha = 0.2) +
         ylab(bquote("Predicted "*psi~"")) +
         xlab("Latitude") +
-        labs(title = "Marginal Effect of Covariates on ENES Occupancy") +
+        #labs(title = "Marginal Effect of Covariates on ENES Occupancy") +
         theme_classic() +
         theme(legend.position = "none",
               strip.text = element_text(size = 12, face = "bold"),
-              plot.title = element_text(hjust = 0.5, face = "bold"))  
+              plot.title = element_text(hjust = 0.5, face = "bold"),
+              axis.text = element_text(size = 18),      # Axis numbers
+              axis.title = element_text(size = 20)) +    # Axis labels  
+        scale_x_continuous(n.breaks = 3)  # Reduce number of x-axis labels
   
   #ggsave("figures/e-lat-effect.png", plot = e.lat, dpi = 300)
   
@@ -667,11 +670,14 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
         geom_ribbon(aes(ymin = LCI, ymax = UCI), alpha = 0.2) +
         ylab(bquote("Predicted "*psi~"")) +
         xlab("Longitude") +
-        #labs(title = "Marginal Effect of Longitude on Occupancy") +
+        labs(title = "Marginal Effect of Covariates on ENES Occupancy") +
         theme_classic() +
         theme(legend.position = "none",
               strip.text = element_text(size = 12, face = "bold"),
-              plot.title = element_text(hjust = 0.5, face = "bold"))  
+              plot.title = element_text(hjust = 0.5, face = "bold", size = 20),
+              axis.text = element_text(size = 18),      # Axis numbers
+              axis.title = element_text(size = 20)) +    # Axis labels  
+        scale_x_continuous(n.breaks = 4)  # Reduce number of x-axis labels
   
   #ggsave("figures/e-long-effect.png", plot = e.long, dpi = 300)
   
@@ -744,7 +750,10 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
         theme_classic() +
         theme(legend.position = "none",
               strip.text = element_text(size = 12, face = "bold"),
-              plot.title = element_text(hjust = 0.5, face = "bold"))  
+              plot.title = element_text(hjust = 0.5, face = "bold"),
+              axis.text = element_text(size = 18),      # Axis numbers
+              axis.title = element_text(size = 20)) +    # Axis labels  
+        scale_x_continuous(n.breaks = 4)  # Reduce number of x-axis labels
   
   #ggsave("figures/e-elev-effect.png", plot = e.elev, dpi = 300)
   
@@ -753,7 +762,8 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
   
   # range
   r<- range(downedwood.new)
-  # create sequence along range
+          scale_x_continuous(n.breaks = 4)  # Reduce number of x-axis labels
+# create sequence along range
   dwd_data <- seq(r[1], r[2], length.out=50) 
   
   # set all other covs at mean
@@ -818,13 +828,20 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
     theme_classic() +
     theme(legend.position = "none",
           strip.text = element_text(size = 12, face = "bold"),
-          plot.title = element_text(hjust = 0.5, face = "bold"))    
+          plot.title = element_text(hjust = 0.5, face = "bold"),
+          axis.text = element_text(size = 18),      # Axis numbers
+          axis.title = element_text(size = 20)) +    # Axis labels    
+    scale_x_continuous(n.breaks = 4)  # Reduce number of x-axis labels
   
     
 # Combine
-  p.enes <- (e.lat | e.long) / (e.elev | e.dwd)
+  p.enes <- (e.lat | e.long | e.elev | e.dwd)
   
-  #ggsave("figures/e-covs-effect.png", plot = p.enes, dpi = 300)
+  ggsave("figures/e-covs-effect.png",          
+         width = 14,   # Wider
+         height = 3,   # Taller to reduce the "skinny" look
+         units = "in",
+         plot = p.enes, dpi = 300)
   
   
 ##### Marginal Psi Plots - OSS -------------------------------------------  
@@ -899,11 +916,14 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
     geom_ribbon(aes(ymin = LCI, ymax = UCI), alpha = 0.2) +
     ylab(bquote("Predicted "*psi~"")) +
     xlab("Latitude") +
-    labs(title = "Marginal Effect of Covariates on OSS Occupancy") +
+    #labs(title = "Marginal Effect of Covariates on OSS Occupancy") +
     theme_classic() +
     theme(legend.position = "none",
           strip.text = element_text(size = 12, face = "bold"),
-          plot.title = element_text(hjust = 0.5, face = "bold"))  
+          plot.title = element_text(hjust = 0.5, face = "bold"),
+          axis.text = element_text(size = 18),      # Axis numbers
+          axis.title = element_text(size = 20)) +    # Axis labels    
+    scale_x_continuous(n.breaks = 4)  # Reduce number of x-axis labels  
   
   #ggsave("figures/e-lat-effect.png", plot = e.lat, dpi = 300)
   
@@ -971,11 +991,14 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
     geom_ribbon(aes(ymin = LCI, ymax = UCI), alpha = 0.2) +
     ylab(bquote("Predicted "*psi~"")) +
     xlab("Longitude") +
-    #labs(title = "Marginal Effect of Longitude on Occupancy") +
+    labs(title = "Marginal Effect of Covariates on BAWR Occupancy") +
     theme_classic() +
     theme(legend.position = "none",
           strip.text = element_text(size = 12, face = "bold"),
-          plot.title = element_text(hjust = 0.5, face = "bold"))  
+          plot.title = element_text(hjust = 0.5, face = "bold", size = 20),
+          axis.text = element_text(size = 18),      # Axis numbers
+          axis.title = element_text(size = 20)) +    # Axis labels    
+    scale_x_continuous(n.breaks = 4)  # Reduce number of x-axis labels  
   
   #ggsave("figures/e-long-effect.png", plot = p.long, dpi = 300)
   
@@ -1048,7 +1071,10 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
     theme_classic() +
     theme(legend.position = "none",
           strip.text = element_text(size = 12, face = "bold"),
-          plot.title = element_text(hjust = 0.5, face = "bold"))  
+          plot.title = element_text(hjust = 0.5, face = "bold"),
+          axis.text = element_text(size = 18),      # Axis numbers
+          axis.title = element_text(size = 20)) +    # Axis labels    
+    scale_x_continuous(n.breaks = 4)  # Reduce number of x-axis labels  
   
   #ggsave("figures/e-elev-effect.png", plot = p.elev, dpi = 300)
 
@@ -1122,13 +1148,21 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
     theme_classic() +
     theme(legend.position = "none",
           strip.text = element_text(size = 12, face = "bold"),
-          plot.title = element_text(hjust = 0.5, face = "bold"))  
+          plot.title = element_text(hjust = 0.5, face = "bold"),
+          axis.text = element_text(size = 18),      # Axis numbers
+          axis.title = element_text(size = 20)) +    # Axis labels    
+    scale_x_continuous(n.breaks = 4)  # Reduce number of x-axis labels  
   
   
 # Combine
-  p.oss <- (o.lat | o.long) / (o.elev | o.dwd)
+  p.oss <- (o.lat | o.long | o.elev | o.dwd)
   
-  ggsave("figures/o-covs-effect.png", plot = p.oss, dpi = 300)
+  ggsave("figures/o-covs-effect.png",  
+         width = 14,   # Wider
+         height = 3,   # Taller to reduce the "skinny" look
+         units = "in",
+         plot = p.oss, dpi = 300)
+  
   
 ##### Combined Psi Plots - both spp -----------------------------------------------
   
