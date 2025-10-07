@@ -84,6 +84,8 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
       breaks = 1:length(levels(posterior_data_O$parameter_clean)),
       labels = levels(posterior_data_O$parameter_clean)
     ) +
+    # Narrow the x-axis to focus on the distributions
+    coord_cartesian(xlim = c(-4, 2)) +
     labs(
       x = "Coefficient Value",
       title = "OSS: Posterior Distributions",
@@ -94,12 +96,21 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
       plot.background = element_rect(fill = "white", color = NA),
       panel.grid.major.y = element_blank(),
       panel.grid.minor = element_blank(),
-      axis.text.y = element_text(vjust = 0, size = 12)
+      axis.text.y = element_text(vjust = 0, size = 16),      # bigger y-axis labels
+      axis.text.x = element_text(size = 14),                 # bigger x-axis labels
+      axis.title.x = element_text(size = 16),                # bigger x-axis title
+      axis.title.y = element_text(size = 16),                # bigger y-axis title
+      plot.title = element_text(size = 18, face = "bold")    # bigger plot title
     )
+  
   
   print(plot_densities_O)
   
-  ggsave("figures/o-posterior-dist.png", plot = plot_densities_O, dpi = 300)
+  ggsave("figures/o-posterior-dist.png", 
+         plot = plot_densities_O, 
+         width = 6,      
+         height = 10,  
+         dpi = 300)
   
   
   
@@ -158,6 +169,7 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
       breaks = 1:length(levels(posterior_data_E$parameter_clean)),
       labels = levels(posterior_data_E$parameter_clean)
     ) +
+    coord_cartesian(xlim = c(-4, 2)) +
     labs(
       x = "Coefficient Value",
       title = "ENES: Posterior Distributions",
@@ -168,13 +180,23 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
       plot.background = element_rect(fill = "white", color = NA),
       panel.grid.major.y = element_blank(),
       panel.grid.minor = element_blank(),
-      axis.text.y = element_text(vjust = 0, size = 12)
+      axis.text.y = element_text(vjust = 0, size = 16),      # bigger y-axis labels
+      axis.text.x = element_text(size = 14),                 # bigger x-axis labels
+      axis.title.x = element_text(size = 16),                # bigger x-axis title
+      axis.title.y = element_text(size = 16),                # bigger y-axis title
+      plot.title = element_text(size = 18, face = "bold")    # bigger plot title
     )
+  
   
   print(plot_densities_E)
   
-  ggsave("figures/e-posterior-dist.png", plot = plot_densities_E, dpi = 300)
+  ggsave("figures/e-posterior-dist.png", 
+         plot = plot_densities_E, 
+         width = 6,      
+         height = 10,  
+         dpi = 300)
   
   
+
   
 

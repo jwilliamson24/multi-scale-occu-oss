@@ -482,7 +482,7 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
   ))
   
   # rename - optional
-  coef_df$Parameter <- recode(coef_df$Parameter,
+  coef_df$Parameter <- dplyr::recode(coef_df$Parameter,
                               "beta1.psi.BU" = "Burned (BU)",
                               "beta2.psi.HB" = "Harvest+Burn (HB)",
                               "beta3.psi.HU" = "Harvested (HU)",
@@ -503,6 +503,7 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
     geom_errorbarh(aes(xmin = LCI, xmax = UCI), height = 0.2) +
     geom_vline(xintercept = 0, linetype = "dashed") +
     facet_wrap(~ Submodel, scales = "free_y", ncol=1) +
+    coord_cartesian(xlim = c(min(coef_df$LCI) - 0.2, max(coef_df$UCI) + 0.2)) +
     labs(title = "Posterior Coefficient Estimates - ENES",
          x = "Estimate (logit scale)",
          y = "Parameter") +
