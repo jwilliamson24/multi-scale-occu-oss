@@ -417,26 +417,52 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
   
   both_preds <- rbind(alltreatment_preds, alltreatment_preds2)
   
-  p3 <- ggplot(both_preds, aes(x = treatment, y = predicted, color = species, 
-                               shape = species, linetype = species)) +
+  # Set the order of treatments
+  both_preds$treatment <- factor(both_preds$treatment, levels = c("UU", "BU", "HU", "HB", "BS"))
+  
+  p3 <- ggplot(both_preds, aes(x = treatment, y = predicted, color = treatment, linetype = species)) +
     geom_point(position = position_dodge(0.5), size = 4) +
     geom_errorbar(aes(ymin = LCI, ymax = UCI), width = 0.1, size = 0.8, position = position_dodge(0.5)) +
-    scale_color_manual(values = c("ENES" = "#F95738", "OSS" = "#00798C")) +
-    scale_linetype_manual(values = c("ENES" = "solid", "OSS" = "dashed")) +
+    scale_color_manual(values = c("BS" = "#EA7317", 
+                                  "HB" = "#FEC601",
+                                  "HU" = "#62B6CB", 
+                                  "UU" = "#2364AA",
+                                  "BU" = "#69995D")) + 
+    scale_x_discrete(labels = c("UU" = "Control",
+                                "BU" = "Burn",
+                                "HU" = "Harv",
+                                "HB" = "Harv-Burn",
+                                "BS" = "Salvage")) +
+    scale_linetype_manual(values = c("ENES" = "solid", "OSS" = "dashed"),
+                          labels = c("OSS" = expression(italic("B. wrighti")), 
+                                     "ENES" = expression(italic("E. eschscholtzii"))
+                                     )) +
     ylab(bquote("Predicted "*psi~"")) +
-    xlab("Treatment Group") +
+    #xlab("Treatment Group") +
     labs(title = "Predicted Occupancy by Treatment and Species") +
-    theme_classic() +
+    theme_minimal() +
     theme(
       axis.text.x = element_text(size = 16),
       axis.text.y = element_text(size = 16),
-      axis.title.x = element_text(size = 16),
+      axis.title.x = element_blank(),
       axis.title.y = element_text(size = 16),
-      legend.position = "bottom",
-      legend.text = element_text(size = 16),
-      legend.title = element_text(size = 16),
+      legend.title = element_blank(),
+      legend.text = element_text(size = 14),
+      legend.position = "inside",
+      legend.position.inside = c(0.12, 0.15),
+      #legend.text = element_text(size = 16),
+      #legend.title = element_text(size = 16),
       strip.text = element_text(size = 15, face = "bold"),
-      plot.title = element_text(hjust = 0.5, face = "bold", size = 18))
+      plot.title = element_text(hjust = 0.5, face = "bold", size = 18),
+      panel.grid.major.y = element_blank(),
+      panel.grid.major.x = element_blank(), 
+      panel.border = element_rect(color = "gray40", fill = NA, linewidth = 0.5),
+      axis.ticks = element_line(color = "gray40", size = 0.5),
+      axis.ticks.length = unit(0.1, "cm")
+      ) +
+    guides(color = "none") # removes trt legend
+  
+  p3
   
   ggsave("figures/both-spp-trt-psi-preds.png", plot = p3, dpi = 500)
   
