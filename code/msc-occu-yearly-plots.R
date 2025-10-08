@@ -33,7 +33,7 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
 
 #### Plot predicted occupancy for each year and treatment 
   
-  b <- E2  # # # # choose species # # # #
+  b <- O2  # # # # choose species # # # #
   
   # number of posterior samples
   n.samples = nrow(b)
@@ -279,8 +279,9 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
   
   
   
-# Plot with points and lines, automatically handling missing combinations
-  p2 <- ggplot(year_treatment_preds, aes(x = year, y = predicted, color = treatment,
+#### Plot --------------------------------------------------------------------- 
+
+    p2 <- ggplot(year_treatment_preds, aes(x = year, y = predicted, color = treatment,
                                          shape = treatment)) +
     geom_pointrange(aes(ymin = LCI, ymax = UCI), 
                     position = position_dodge(width = 0.6),
@@ -302,18 +303,96 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
     scale_x_continuous(breaks = unique(year_treatment_preds$year))
   
   
-  ggsave("figures/o-yearly-preds-shape.png", plot = p2, dpi = 300, bg = "white")
-
-  
+  #ggsave("figures/o-yearly-preds-shape.png", plot = p2, dpi = 300, bg = "white")
   
 
   
-# yearly detection (luke)
-  enes %>% mutate(detect = ifelse(V1 == 1 | V2 == 1 | V3 == 1, 1, 0)) %>% filter(UU == 1) %>% group_by(year) %>% summarise(detect = sum(detect) / n())
-
- 
-
-# 2023-2024 Predictions for paper
+  
+  
+#### Plot with custom dodge widths *from Claude ---------------
+  
+  year_treatment_preds <- year_treatment_preds_o
+  # Set the order of treatments
+  year_treatment_preds$treatment <- factor(year_treatment_preds$treatment, 
+                                           levels = c("UU", "BU", "HU", "HB", "BS"))
+  
+  # Version with custom spacing parameters for easy adjustment
+  compress_factor <- 0.62  # Smaller = more compressed (try 0.3 to 0.6)
+  year_8_position <- 5.5    # Position of year 8
+  year_9_position <- 6.8    # Position of year 9
+  dodge_1_7 <- 0.4        # Dodge width for years 1-7
+  dodge_8_9 <- 0.9        # Dodge width for years 8-9
+  
+  year_treatment_preds$x_custom <- case_when(
+    year_treatment_preds$year <= 7 ~ year_treatment_preds$year * compress_factor,
+    year_treatment_preds$year == 8 ~ year_8_position,
+    year_treatment_preds$year == 9 ~ year_9_position
+  )
+  
+  data_1_7_custom <- year_treatment_preds[year_treatment_preds$year <= 7, ]
+  data_8_9_custom <- year_treatment_preds[year_treatment_preds$year >= 8, ]
+  
+  p2_adjustable <- ggplot() +
+    geom_pointrange(data = data_1_7_custom,
+                    aes(x = x_custom, y = predicted, color = treatment,
+                        ymin = LCI, ymax = UCI),
+                    position = position_dodge(width = dodge_1_7),
+                    size = 0.5) +
+    geom_pointrange(data = data_8_9_custom,
+                    aes(x = x_custom, y = predicted, color = treatment,
+                        ymin = LCI, ymax = UCI),
+                    position = position_dodge(width = dodge_8_9),
+                    size = 0.5) +
+    scale_color_manual(name = "Treatment",
+                      values = c("BS" = "#EA7317", 
+                                  "HB" = "#FEC601",
+                                  "HU" = "#62B6CB", 
+                                  "UU" = "#2364AA",
+                                  "BU" = "#69995D"),
+                       labels = c("BS" = "Salvage",
+                                  "BU" = "Burn-only", 
+                                  "HB" = "Harvest-Burn", 
+                                  "HU" = "Harvest-only",
+                                  "UU" = "Control")) +
+    labs(x = NULL, 
+         y = "Predicted "*psi~"",
+         title = expression("Occupancy Estimates by Year and Treatment - "*italic("B. wrighti"))) +
+    theme_minimal() +
+    theme(axis.text.x = element_text(size = 13),
+          axis.text.y = element_text(size = 16),
+          axis.title.x = element_text(size = 16, margin = margin(t = 10)),
+          axis.title.y = element_text(size = 16, margin = margin(r = 10)),
+          legend.position = "right",
+          legend.text = element_text(size = 16),
+          legend.title = element_text(size = 16),
+          plot.title = element_text(hjust = 0.5, face = "bold", size = 16, margin = margin(b = 10)),
+          panel.grid.minor = element_blank(),
+          panel.grid.major.x = element_blank()) +
+    scale_x_continuous(breaks = c(1:7 * compress_factor, year_8_position, year_9_position),
+                       labels = c(2013, 2014, 2015, 2016, 2017, 2018, 2019, 2023, 2024),
+                       limits = c(0.6, 7.5)) +  
+    geom_vline(xintercept = (7 * compress_factor + year_8_position) / 2-0.2, 
+               linetype = "dotted", alpha = 0.6) +
+    geom_vline(xintercept = (2 * compress_factor + 3 * compress_factor) / 2,  # Between years 2-3
+               linetype = "dotted", alpha = 0.6)
+  
+  p2_adjustable
+   
+  
+  
+  ggsave("figures/o-yearly-preds-v2.png", 
+         plot = p2_adjustable, 
+         width = 10,
+         height = 4,
+         dpi = 300, 
+         bg = "white")
+  
+  
+  
+  
+  
+  
+#### 2023-2024 Predictions for paper ----------------------------------------
   
   # Average predictions across years 8 and 9 for each treatment
   hb_avg <- year_treatment_preds_e[year_treatment_preds_e$treatment == "HB" & year_treatment_preds_e$year %in% c(8, 9), ]
@@ -332,6 +411,7 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
   hu_ci_width <- mean(hu_avg$UCI - hu_avg$LCI)
   bu_ci_width <- mean(bu_avg$UCI - bu_avg$LCI)  
   uu_ci_width <- mean(uu_avg$UCI - uu_avg$LCI)  
+  
   
   
   
