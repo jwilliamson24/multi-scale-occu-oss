@@ -15,6 +15,9 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
   library(ggplot2)
   library(dplyr)
   library(tidyr)
+  library(ggtext)
+  library(patchwork)
+
 
 # Load data
   load("data/multiscale_output_and_data_082525_enes_full.RData")
@@ -39,10 +42,10 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
     pivot_longer(everything(), names_to = "parameter", values_to = "value") %>%
     mutate(
       parameter_clean = case_when(
-        parameter == "beta1.psi.BU" ~ "Burned-Unharvested",
-        parameter == "beta2.psi.HB" ~ "Harvested-Burned", 
-        parameter == "beta3.psi.HU" ~ "Harvested-Unburned",
-        parameter == "beta4.psi.BS" ~ "Burned-Salvage",
+        parameter == "beta1.psi.BU" ~ "Burn-only",
+        parameter == "beta2.psi.HB" ~ "Harvest-Burn", 
+        parameter == "beta3.psi.HU" ~ "Harvest-only",
+        parameter == "beta4.psi.BS" ~ "Burn-Salvage",
         parameter == "beta5.psi.lat" ~ "Latitude",
         parameter == "beta6.psi.lon" ~ "Longitude",
         parameter == "beta8.psi.elev" ~ "Elevation", 
@@ -54,6 +57,19 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
     mutate(mean_val = mean(value)) %>%
     ungroup() %>%
     mutate(parameter_clean = reorder(parameter_clean, mean_val))
+  
+  
+  # Define colors for each parameter
+  param_colors <- c(
+    "Downed Wood" = "steelblue",
+    "Elevation" = "steelblue",
+    "Latitude" = "steelblue",
+    "Burn-only" = "#69995D",
+    "Longitude" = "steelblue",
+    "Harvest-Burn" = "#FEC601",
+    "Harvest-only" = "#62B6CB",
+    "Burn-Salvage" = "#EA7317"
+  )
   
   
   # Plot
@@ -73,11 +89,12 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
     
     # horizontal baseline for each parameter
     geom_hline(yintercept = 1:length(levels(posterior_data_O$parameter_clean)), 
-               color = "gray20", alpha = 0.7, size = 0.5) +
+               color = "gray20", alpha = 0.7, linewidth = 0.5) +
     
     # density curves
-    geom_ribbon(aes(x = x, ymin = y_pos, ymax = y_final, group = parameter_clean),
-                fill = "steelblue", alpha = 0.7, linewidth = 0.3) +
+    geom_ribbon(aes(x = x, ymin = y_pos, ymax = y_final, group = parameter_clean, fill = parameter_clean),
+                alpha = 0.7, linewidth = 0.3) +
+    scale_fill_manual(values = param_colors, guide = "none") +
     
     # parameter labels
     scale_y_continuous(
@@ -85,11 +102,11 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
       labels = levels(posterior_data_O$parameter_clean)
     ) +
     # Narrow the x-axis to focus on the distributions
-    coord_cartesian(xlim = c(-4, 2)) +
+    coord_cartesian(xlim = c(-5, 3)) +
     labs(
-      x = "Coefficient Value",
-      title = "OSS: Posterior Distributions",
-    ) +
+      #x = expression(paste("Effect Size: ", italic("B. wrighti")))
+      x = "Effect Size"
+      ) +
     theme_minimal() +
     theme(
       panel.background = element_rect(fill = "white", color = NA),
@@ -99,8 +116,6 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
       axis.text.y = element_text(vjust = 0, size = 16),      # bigger y-axis labels
       axis.text.x = element_text(size = 14),                 # bigger x-axis labels
       axis.title.x = element_text(size = 16),                # bigger x-axis title
-      axis.title.y = element_text(size = 16),                # bigger y-axis title
-      plot.title = element_text(size = 18, face = "bold")    # bigger plot title
     )
   
   
@@ -116,7 +131,6 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
   
 #### ENES -----------------------------------------------------------------------
   
-  
   # Convert model output and prepare data
   posterior_data_E <- as.data.frame(E2) %>%
     select(beta1.psi.BU, beta2.psi.HB, beta3.psi.HU, beta4.psi.BS, 
@@ -124,10 +138,10 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
     pivot_longer(everything(), names_to = "parameter", values_to = "value") %>%
     mutate(
       parameter_clean = case_when(
-        parameter == "beta1.psi.BU" ~ "Burned-Unharvested",
-        parameter == "beta2.psi.HB" ~ "Harvested-Burned", 
-        parameter == "beta3.psi.HU" ~ "Harvested-Unburned",
-        parameter == "beta4.psi.BS" ~ "Burned-Salvage",
+        parameter == "beta1.psi.BU" ~ "Burn-only",
+        parameter == "beta2.psi.HB" ~ "Harvest-Burn", 
+        parameter == "beta3.psi.HU" ~ "Harvest-only",
+        parameter == "beta4.psi.BS" ~ "Burn-Salvage",
         parameter == "beta5.psi.lat" ~ "Latitude",
         parameter == "beta6.psi.lon" ~ "Longitude",
         parameter == "beta8.psi.elev" ~ "Elevation", 
@@ -139,6 +153,19 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
     mutate(mean_val = mean(value)) %>%
     ungroup() %>%
     mutate(parameter_clean = reorder(parameter_clean, mean_val))
+  
+  
+  # Define colors for each parameter
+  param_colors <- c(
+    "Downed Wood" = "steelblue",
+    "Elevation" = "steelblue",
+    "Latitude" = "steelblue",
+    "Burn-only" = "#69995D",
+    "Longitude" = "steelblue",
+    "Harvest-Burn" = "#FEC601",
+    "Harvest-only" = "#62B6CB",
+    "Burn-Salvage" = "#EA7317"
+  )
   
   
   # Plot
@@ -161,18 +188,19 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
                color = "gray20", alpha = 0.7, size = 0.5) +
     
     # density curves
-    geom_ribbon(aes(x = x, ymin = y_pos, ymax = y_final, group = parameter_clean),
-                fill = "steelblue", alpha = 0.7, size = 0.3) +
+    geom_ribbon(aes(x = x, ymin = y_pos, ymax = y_final, group = parameter_clean, fill = parameter_clean),
+                alpha = 0.7, linewidth = 0.3) +
+    scale_fill_manual(values = param_colors, guide = "none") +
     
     # parameter labels
     scale_y_continuous(
       breaks = 1:length(levels(posterior_data_E$parameter_clean)),
       labels = levels(posterior_data_E$parameter_clean)
     ) +
-    coord_cartesian(xlim = c(-4, 2)) +
+    coord_cartesian(xlim = c(-5, 3)) +
     labs(
-      x = "Coefficient Value",
-      title = "ENES: Posterior Distributions",
+      #x = expression(paste("Effect Size: ", italic("E. eschscholtzii")))
+      x = "Effect Size"
     ) +
     theme_minimal() +
     theme(
@@ -183,8 +211,6 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
       axis.text.y = element_text(vjust = 0, size = 16),      # bigger y-axis labels
       axis.text.x = element_text(size = 14),                 # bigger x-axis labels
       axis.title.x = element_text(size = 16),                # bigger x-axis title
-      axis.title.y = element_text(size = 16),                # bigger y-axis title
-      plot.title = element_text(size = 18, face = "bold")    # bigger plot title
     )
   
   
@@ -197,6 +223,25 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
          dpi = 300)
   
   
-
   
-
+  
+## COMBINE
+  
+  p <- plot_densities_O + plot_densities_E + 
+    plot_annotation(
+      tag_levels = 'A',
+      title = "Posterior Distributions of Covariate Effects on Occupancy"
+    ) &
+    theme(
+      plot.tag = element_text(size = 18, face = "bold"),
+      plot.title = element_text(size = 18, face = "bold", hjust = 0.5)
+    )
+  
+  
+  ggsave("figures/both-posterior-dist-facet.png", 
+         plot = p, 
+         width = 12,      
+         height = 10,  
+         dpi = 300)
+  
+  

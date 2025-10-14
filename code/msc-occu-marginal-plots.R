@@ -217,7 +217,7 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
           panel.grid.minor = element_blank(),
           panel.grid.major.x = element_blank())
   
-  ggsave("figures/e-trt-psi-preds.png", plot = p, dpi = 500)  
+  #ggsave("figures/e-trt-psi-preds.png", plot = p, dpi = 500)  
   
 
 # add species column for combined plot
@@ -406,7 +406,7 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
           panel.grid.minor = element_blank(),
           panel.grid.major.x = element_blank())
   
-  ggsave("figures/o-trt-psi-preds.png", plot = p2, dpi = 500)  
+  #ggsave("figures/o-trt-psi-preds.png", plot = p2, dpi = 500)  
   
 
 # add species column for combined plot
@@ -429,11 +429,11 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
                                   "UU" = "#2364AA",
                                   "BU" = "#69995D")) + 
     scale_x_discrete(labels = c("UU" = "Control",
-                                "BU" = "Burn",
-                                "HU" = "Harv",
-                                "HB" = "Harv-Burn",
-                                "BS" = "Salvage")) +
-    scale_linetype_manual(values = c("ENES" = "solid", "OSS" = "dashed"),
+                                "BU" = "Burn-only",
+                                "HU" = "Harvest",
+                                "HB" = "Harvest-Burn",
+                                "BS" = "Burn-Salvage")) +
+    scale_linetype_manual(values = c("ENES" = "solid", "OSS" = "42"),
                           labels = c("OSS" = expression(italic("B. wrighti")), 
                                      "ENES" = expression(italic("E. eschscholtzii"))
                                      )) +
@@ -442,7 +442,7 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
     labs(title = "Predicted Occupancy by Treatment and Species") +
     theme_minimal() +
     theme(
-      axis.text.x = element_text(size = 16),
+      axis.text.x = element_text(size = 15),
       axis.text.y = element_text(size = 16),
       axis.title.x = element_blank(),
       axis.title.y = element_text(size = 16),
@@ -453,18 +453,23 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
       #legend.text = element_text(size = 16),
       #legend.title = element_text(size = 16),
       strip.text = element_text(size = 15, face = "bold"),
-      plot.title = element_text(hjust = 0.5, face = "bold", size = 18),
+      plot.title = element_text(hjust = 0.5, face = "bold", size = 16),
       panel.grid.major.y = element_blank(),
       panel.grid.major.x = element_blank(), 
       panel.border = element_rect(color = "gray40", fill = NA, linewidth = 0.5),
-      axis.ticks = element_line(color = "gray40", size = 0.5),
+      axis.ticks = element_line(color = "gray40", linewidth = 0.5),
       axis.ticks.length = unit(0.1, "cm")
       ) +
     guides(color = "none") # removes trt legend
   
   p3
   
-  ggsave("figures/both-spp-trt-psi-preds.png", plot = p3, dpi = 500)
+  ggsave("figures/both-spp-trt-psi-preds.png", 
+         plot = p3, 
+         width = 8,
+         height = 5,
+         bg = "white",
+         dpi = 500)
   
   
 ##### Coefficient Plot ----------------------------------------------------------

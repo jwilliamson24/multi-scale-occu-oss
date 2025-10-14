@@ -372,7 +372,7 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
                                   "HU" = "#62B6CB", 
                                   "UU" = "#2364AA",
                                   "BU" = "#69995D"),
-                       labels = c("BS" = "Salvage",
+                       labels = c("BS" = "Burn-Salvage",
                                   "BU" = "Burn-only", 
                                   "HB" = "Harvest-Burn", 
                                   "HU" = "Harvest-only",
