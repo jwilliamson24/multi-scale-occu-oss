@@ -855,14 +855,16 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
     geom_line(size = 1) +
     geom_ribbon(aes(ymin = LCI, ymax = UCI), alpha = 0.2) +
     ylab(bquote("Predicted "*psi~"")) +
-    xlab("dwd count") +
+    xlab("Downed Wood Count") +
     #labs(title = "Marginal Effect of DWD on Occupancy") +
     theme_classic() +
     theme(legend.position = "none",
           strip.text = element_text(size = 12, face = "bold"),
           plot.title = element_text(hjust = 0.5, face = "bold"),
           axis.text = element_text(size = 18),      # Axis numbers
-          axis.title = element_text(size = 20)) +    # Axis labels    
+          axis.title = element_text(size = 20),
+          axis.title.y = element_blank(),    
+          axis.text.y  = element_blank()) +    
     scale_x_continuous(n.breaks = 4)  # Reduce number of x-axis labels
   
     
@@ -1175,7 +1177,7 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
     geom_line(size = 1) +
     geom_ribbon(aes(ymin = LCI, ymax = UCI), alpha = 0.2) +
     ylab(bquote("Predicted "*psi~"")) +
-    xlab("DWD Count") +
+    xlab("Downed Wood Count") +
     #labs(title = "Marginal Effect of DWD on Occupancy") +
     theme_classic() +
     theme(legend.position = "none",
@@ -1195,7 +1197,7 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
          units = "in",
          plot = p.oss, dpi = 300)
   
-  
+
 ##### Combined Psi Plots - both spp -----------------------------------------------
   
   # add covariate col and combine all occu covariate preds into one df
@@ -1583,6 +1585,33 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
   
   p11 <- (o.lat / o.long / o.elev) | (o.dw / o.temp)
   ggsave("figures/o-all-covs.png", plot = p11, dpi = 300)
+  
+  
+
+  
+#### dwd oh psi plot for pub --------------------------------------------------------
+  
+  p.dwd <- o.dwd | e.dwd
+  
+  
+  
+  p <- o.dwd + e.dwd + 
+    plot_annotation(
+      tag_levels = 'A',
+      title = "Downed Wood Effect on Occupancy"
+    ) &
+    theme(
+      plot.tag = element_text(size = 18, face = "bold"),
+      plot.title = element_text(size = 18, face = "bold", hjust = 0.5)
+    ) 
+
+  
+  
+  ggsave("figures/both-dwd-effect.png",  
+         width = 8,   # Wider
+         height = 4,   # Taller to reduce the "skinny" look
+         units = "in",
+         plot = p, dpi = 300)
   
   
   
