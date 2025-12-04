@@ -183,7 +183,10 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
   
 #### Calculate predicted occupancy probabilities for each treatment ---------------- 
   
-  
+  # Extract treatment effects from the summary table
+  treatment_effects <- summary_table_e[summary_table_e$Parameter %in% 
+                                         c("beta1.psi.BU", "beta2.psi.HB", 
+                                           "beta3.psi.HU", "beta4.psi.BS"), ]
 ## ENES
   
   if("beta0.psi" %in% summary_table_e$Parameter) {
@@ -236,6 +239,28 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
     print(occupancy_results_o)
   }
   
+  
+  #### Compare harvest-burn to harvest-only directly ----------------
+  
+  ## ENES
+  attach.nimble(mcmc.output.e)  # Attach ENES parameters
+  
+  intercept_e <- as.vector(beta0.psi)
+  occ_HB_e <- plogis(intercept_e + as.vector(beta2.psi.HB))
+  occ_HU_e <- plogis(intercept_e + as.vector(beta3.psi.HU))
+  
+  prob_HB_greater_HU_e <- mean(occ_HB_e > occ_HU_e) * 100
+  prob_HB_greater_HU_e
+  
+  ## OSS
+  attach.nimble(mcmc.output.o)  # Attach OSS parameters
+  
+  intercept_o <- as.vector(beta0.psi)
+  occ_HB_o <- plogis(intercept_o + as.vector(beta2.psi.HB))
+  occ_HU_o <- plogis(intercept_o + as.vector(beta3.psi.HU))
+  
+  prob_HB_greater_HU_o <- mean(occ_HB_o > occ_HU_o) * 100
+  prob_HB_greater_HU_o
   
   
   
