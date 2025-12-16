@@ -10,6 +10,12 @@
 setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi-scale-occu-oss")
 
 
+# ENES naive occupancy: 52.4%
+# OSS naive occupancy: 66.9%
+
+
+#### ---------------------------------------------------------------------------
+
 ## Setup 
   library(dplyr)
 
@@ -54,10 +60,10 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
                                         enes_clean$V3[enes_clean$year >= 2020]), na.rm = TRUE)
   
   # Percentage of sites with detections
-  pct_sites_detected_e <- round((total_site_dets_e / total_sites_surveyed_e) * 100, 1)
+  naive_occu_e <- round((total_site_dets_e / total_sites_surveyed_e) * 100, 1)
   
   # Percentage of sites with detections - post-2020
-  pct_sites_detected_e_2020 <- round((post_2020_e / total_sites_surveyed_e_2020) * 100, 1)
+  naive_occu_e_2020 <- round((post_2020_e / total_sites_surveyed_e_2020) * 100, 1)
   
   # Overall treatment summary (at site level)
   treatment_summary <- enes_dets %>%
@@ -85,13 +91,13 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
   total_dets_e # total individual enes detections across all surveys
   pre_2020_e # site level detections before 2020 wildfire
   total_site_dets_e # total sites where enes was detected
-  pct_sites_detected_e # percentage of sites with detections
+  naive_occu_e # percentage of sites with detections
   
   ## 2023-2024 data ##
   post_2020_e # site detections post-fire
   total_sites_surveyed_e_2020 # total surveyed plots post fire
   total_survey_dets_e_post2020 # total enes detections post-fire
-  pct_sites_detected_e_2020 # percent of sites with enes detections
+  naive_occu_e_2020 # percent of sites with enes detections
   
   
   
@@ -134,10 +140,10 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
                                         oss_clean$V3[oss_clean$year >= 2020]), na.rm = TRUE)
   
   # Percentage of sites with detections - all
-  pct_sites_detected_o <- round((total_site_dets_o / total_sites_surveyed_o) * 100, 1)
+  naive_occu_o <- round((total_site_dets_o / total_sites_surveyed_o) * 100, 1)
   
   # Percentage of sites with detections - post-2020
-  pct_sites_detected_o_2020 <- round((post_2020_o / total_sites_surveyed_o_2020) * 100, 1)
+  naive_occu_o_2020 <- round((post_2020_o / total_sites_surveyed_o_2020) * 100, 1)
   
   
   # Overall treatment summary (at site level)
@@ -167,13 +173,13 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
   total_dets_o # total individual enes detections across all surveys
   pre_2020_o # site level detections before 2020 wildfire
   total_site_dets_o # total sites where enes was detected
-  pct_sites_detected_o # percentage of sites with detections
+  naive_occu_o # percentage of sites with detections
   
   ## 2023-2024 data ##
   post_2020_o # site detections post-fire
   total_sites_surveyed_o_2020 # total surveyed plots post fire
   total_survey_dets_o_post2020 # total enes detections post-fire
-  pct_sites_detected_o_2020 # percent of sites with enes detections
+  naive_occu_o_2020 # percent of sites with enes detections
     
     
   

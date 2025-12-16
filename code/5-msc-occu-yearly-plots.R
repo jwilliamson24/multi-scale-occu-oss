@@ -9,6 +9,9 @@
 ## =================================================
 setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi-scale-occu-oss")
 
+# current publication plot is the stacked plot at the bottom of script
+
+#### ---------------------------------------------------------------------------
 
 ## Setup 
   library(ggplot2)
@@ -33,7 +36,7 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
   O2 = runjags::combine.mcmc(O)   
 
 
-#### Plot predicted occupancy for each year and treatment 
+#### Calculate predicted occupancy for each year and treatment -----------------
   
   b <- E2  # # # # choose species # # # #
   
@@ -284,6 +287,8 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
 
 #### 2023-2024 Predictions for paper ----------------------------------------
   
+  # i dont remember why i did this 
+  
   # Average predictions across years 8 and 9 for each treatment
   hb_avg <- year_treatment_preds_e[year_treatment_preds_e$treatment == "HB" & year_treatment_preds_e$year %in% c(8, 9), ]
   hu_avg <- year_treatment_preds_e[year_treatment_preds_e$treatment == "HU" & year_treatment_preds_e$year %in% c(8, 9), ]
@@ -301,7 +306,9 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
   hu_ci_width <- mean(hu_avg$UCI - hu_avg$LCI)
   bu_ci_width <- mean(bu_avg$UCI - bu_avg$LCI)  
   uu_ci_width <- mean(uu_avg$UCI - uu_avg$LCI)    
-#### Plot --------------------------------------------------------------------- 
+  
+  
+#### Yearly trt plot - first try ----------------------------------------------- 
 
     p2 <- ggplot(year_treatment_preds, aes(x = year, y = predicted, color = treatment,
                                          shape = treatment)) +
