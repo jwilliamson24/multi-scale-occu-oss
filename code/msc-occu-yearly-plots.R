@@ -19,10 +19,10 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
 # Load data
   e_covs <- read.csv("data/enes.prepost.multiscale.occu.csv") 
   o_covs <- read.csv("data/oss.prepost.multiscale.occu.csv")
-  load("data/msc-enes-data-workspace-V2.RData")
-  load("data/multiscale_output_082525_enes_small.RData")
+  load("data/msc-data-workspace-V3.RData")
+  load("data/multiscale_output_121225_enes_small.RData")
   E = a2
-  load("data/multiscale_output_082525_oss_small.RData")
+  load("data/multiscale_output_121225_oss_small.RData")
   O = a2
   
 
@@ -35,7 +35,7 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
 
 #### Plot predicted occupancy for each year and treatment 
   
-  b <- O2  # # # # choose species # # # #
+  b <- E2  # # # # choose species # # # #
   
   # number of posterior samples
   n.samples = nrow(b)
@@ -276,8 +276,8 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
   
   
   # save as you go to have one for each spp
-  # year_treatment_preds_e <- year_treatment_preds
-  # year_treatment_preds_o <- year_treatment_preds
+  #year_treatment_preds_e <- year_treatment_preds
+  #year_treatment_preds_o <- year_treatment_preds
   
   
   
@@ -400,14 +400,14 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
                linetype = "dotted", alpha = 0.6)
   
   p2_adjustable_e
-   
-  # ggsave("figures/e-yearly-preds-v2.png", 
-  #        plot = p2_adjustable_e, 
+    
+  # ggsave("figures/e-yearly-preds-v2.png",
+  #        plot = p2_adjustable_e,
   #        width = 10,
   #        height = 4,
-  #        dpi = 300, 
+  #        dpi = 300,
   #        bg = "white")
-  
+  # 
 
     
 # OSS
@@ -478,11 +478,11 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
   
   p2_adjustable_o
   
-  # ggsave("figures/o-yearly-preds-v2.png", 
-  #        plot = p2_adjustable_o, 
+  # ggsave("figures/o-yearly-preds-v2.png",
+  #        plot = p2_adjustable_o,
   #        width = 10,
   #        height = 4,
-  #        dpi = 300, 
+  #        dpi = 300,
   #        bg = "white")
 
   
@@ -592,7 +592,7 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
   p_facet
   
   
-  ggsave("figures/facet-yearly-preds-v2.png",
+  ggsave("figures/facet-yearly-preds-v3.png",
          plot = p_facet,
          width = 10,
          height = 5,
