@@ -14,6 +14,8 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
   library(ggplot2)
   library(dplyr)
   library(patchwork)
+  library(ggh4x)
+
 
 # Load data
   e_covs <- read.csv("data/enes.prepost.multiscale.occu.csv") 
@@ -833,7 +835,7 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
   # Rename species labels
   all_preds$species <- factor(all_preds$species,
                               levels = c("ENES", "OSS"),
-                              labels = c("Ensatina", "Oregon Slender Salamander"))
+                              labels = c("Ensatina", "Oregon Slender"))
   
   # Create y-axis label that varies by parameter
   all_preds <- all_preds %>%
@@ -849,7 +851,7 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
   
   # Define color palette
   species_colors <- c("Ensatina" = "#6091C2", 
-                      "Oregon Slender Salamander" = "gray20")
+                      "Oregon Slender" = "gray20")
   
   # Separate the data by parameter type
   psi_data <- all_preds %>% filter(parameter == "ψ")
@@ -864,7 +866,13 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
     facet_grid(species ~ covariate, scales = "free_x") +
     scale_color_manual(values = species_colors) +
     scale_fill_manual(values = species_colors) +
-    labs(y = "Occupancy (ψ)", x = "") +
+    facetted_pos_scales(
+      x = list(
+        covariate == "Latitude" ~ scale_x_continuous(breaks = c(44.6, 45.1)),
+        covariate == "Longitude" ~ scale_x_continuous(breaks = c(-122.6, -122.3)),
+        covariate == "Elevation" ~ scale_x_continuous(breaks = c(750, 3200))
+      )
+    ) +    labs(y = expression(bold("Occupancy ("*psi*")")), x = "") +
     theme_classic() +
     theme(
       strip.text.x = element_text(size = 10, face = "bold"),
@@ -886,7 +894,8 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
     facet_grid(species ~ covariate, scales = "free") +  # free both axes
     scale_color_manual(values = species_colors) +
     scale_fill_manual(values = species_colors) +
-    labs(y = "Subplot Use (θ)", x = "") +
+    scale_x_continuous(n.breaks = 4) +  
+    labs(y = expression(bold("Subplot Use ("*theta*")")), x = "") +
     theme_classic() +
     theme(
       strip.text.x = element_text(size = 10, face = "bold"),
@@ -909,7 +918,8 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
     facet_grid(species ~ covariate, scales = "free") +  # free both axes
     scale_color_manual(values = species_colors) +
     scale_fill_manual(values = species_colors) +
-    labs(y = "Detection (p)", x = "") +
+    scale_x_continuous(breaks = c(0, 15, 30)) +  
+    labs(y = expression(bold("Detection ("*italic(p)*")")), x = "") +
     theme_classic() +
     theme(
       strip.text.x = element_text(size = 10, face = "bold"),
@@ -933,15 +943,15 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
   ggsave("figures/marginal-effects-combined.png", 
          plot = p_final,
          width = 18, 
-         height = 12,
+         height = 9,
          units = "cm",
          dpi = 600)
   
-  ggsave("figures/marginal-effects-combined.pdf", 
-         plot = p_final,
-         width = 18, 
-         height = 12,
-         units = "cm")
+  # ggsave("figures/marginal-effects-combined.pdf", 
+  #        plot = p_final,
+  #        width = 18, 
+  #        height = 9,
+  #        units = "cm")
   
   
   

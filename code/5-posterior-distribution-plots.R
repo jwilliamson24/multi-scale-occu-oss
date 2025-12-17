@@ -20,9 +20,9 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
 
 
 # Load data
-  load("data/multiscale_output_and_data_082525_enes_full.RData")
+  load("data/multiscale_output_and_data_121225_enes_full.RData")
   E = a
-  load("data/multiscale_output_and_data_082525_oss_full.RData")
+  load("data/multiscale_output_and_data_121225_oss_full.RData")
   O = a
 
 # Combine
@@ -38,7 +38,7 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
   # Convert model output and prepare data
   posterior_data_O <- as.data.frame(O2) %>%
     select(beta1.psi.BU, beta2.psi.HB, beta3.psi.HU, beta4.psi.BS, 
-           beta5.psi.lat, beta6.psi.lon, beta8.psi.elev, beta9.psi.dwd) %>%
+           beta5.psi.lat, beta6.psi.lon, beta8.psi.elev) %>%
     pivot_longer(everything(), names_to = "parameter", values_to = "value") %>%
     mutate(
       parameter_clean = case_when(
@@ -48,8 +48,8 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
         parameter == "beta4.psi.BS" ~ "Burn-Salvage",
         parameter == "beta5.psi.lat" ~ "Latitude",
         parameter == "beta6.psi.lon" ~ "Longitude",
-        parameter == "beta8.psi.elev" ~ "Elevation", 
-        parameter == "beta9.psi.dwd" ~ "Downed Wood"
+        parameter == "beta8.psi.elev" ~ "Elevation" 
+        #parameter == "beta1.theta.DW" ~ "Downed Wood"
       )
     ) %>%
     # Order by mean effect size
@@ -61,7 +61,7 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
   
   # Define colors for each parameter
   param_colors <- c(
-    "Downed Wood" = "steelblue",
+    #"Downed Wood" = "steelblue",
     "Elevation" = "steelblue",
     "Latitude" = "steelblue",
     "Burn-only" = "#69995D",
@@ -121,12 +121,11 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
   
   print(plot_densities_O)
   
-  ggsave("figures/o-posterior-dist.png", 
-         plot = plot_densities_O, 
-         width = 6,      
-         height = 10,  
-         dpi = 300)
-  
+  # ggsave("figures/o-posterior-dist.png", 
+  #        plot = plot_densities_O, 
+  #        width = 6,      
+  #        height = 10,  
+  #        dpi = 300)
   
   
 #### ENES -----------------------------------------------------------------------
@@ -134,7 +133,7 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
   # Convert model output and prepare data
   posterior_data_E <- as.data.frame(E2) %>%
     select(beta1.psi.BU, beta2.psi.HB, beta3.psi.HU, beta4.psi.BS, 
-           beta5.psi.lat, beta6.psi.lon, beta8.psi.elev, beta9.psi.dwd) %>%
+           beta5.psi.lat, beta6.psi.lon, beta8.psi.elev) %>%
     pivot_longer(everything(), names_to = "parameter", values_to = "value") %>%
     mutate(
       parameter_clean = case_when(
@@ -144,8 +143,8 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
         parameter == "beta4.psi.BS" ~ "Burn-Salvage",
         parameter == "beta5.psi.lat" ~ "Latitude",
         parameter == "beta6.psi.lon" ~ "Longitude",
-        parameter == "beta8.psi.elev" ~ "Elevation", 
-        parameter == "beta9.psi.dwd" ~ "Downed Wood"
+        parameter == "beta8.psi.elev" ~ "Elevation" 
+        #parameter == "beta1.theta.DW" ~ "Downed Wood"
       )
     ) %>%
     # Order by mean effect size
@@ -157,7 +156,7 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
   
   # Define colors for each parameter
   param_colors <- c(
-    "Downed Wood" = "steelblue",
+   # "Downed Wood" = "steelblue",
     "Elevation" = "steelblue",
     "Latitude" = "steelblue",
     "Burn-only" = "#69995D",
@@ -216,12 +215,11 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
   
   print(plot_densities_E)
   
-  ggsave("figures/e-posterior-dist.png", 
-         plot = plot_densities_E, 
-         width = 6,      
-         height = 10,  
-         dpi = 300)
-  
+  # ggsave("figures/e-posterior-dist.png", 
+  #        plot = plot_densities_E, 
+  #        width = 6,      
+  #        height = 10,  
+  #        dpi = 300)
   
   
   
