@@ -28,9 +28,14 @@ O = a2
 summary(E)
 summary(O)
 
-##### Predicted occupancy for each treatment - ENES ----------------------------
 
+### the below code is really slow ###
+### I made an updated version of it to get estimates in script # 7 in this folder ###
+
+
+##### Predicted occupancy for each treatment - ENES ----------------------------
 # This produces marginal estimates of occupancy for different treatment types
+
 
 b <- E2 
 # number of posterior samples
@@ -409,9 +414,19 @@ p2 <-  ggplot(alltreatment_preds2, aes(x = treatment, y = predicted)) +
 alltreatment_preds2$species <- "OSS"
 
 
-##### Combined Plot - predicted occu by trt for both spp -----------------------
 
 both_preds <- rbind(alltreatment_preds, alltreatment_preds2)
+both_preds[, c(2,4:5)] <- round(both_preds[, c(2,4:5)], 3)
+print(both_preds)
+
+
+### SAVE ###
+write.csv(both_preds, "posterior-preds-both-V3.csv", row.names = FALSE)
+
+
+
+##### Combined Plot - predicted occu by trt for both spp -----------------------
+
 
 # Set the order of treatments
 both_preds$treatment <- factor(both_preds$treatment, levels = c("UU", "BU", "HU", "HB", "BS"))

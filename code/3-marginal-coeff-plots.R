@@ -853,6 +853,9 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
   species_colors <- c("Ensatina" = "#6091C2", 
                       "Oregon Slender" = "gray20")
   
+  # Reorder species factor
+  all_preds$species <- factor(all_preds$species, levels = c("Oregon Slender", "Ensatina"))
+  
   # Separate the data by parameter type
   psi_data <- all_preds %>% filter(parameter == "ψ")
   theta_data <- all_preds %>% filter(parameter == "θ")

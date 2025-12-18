@@ -4,7 +4,7 @@
 ## Author: Jasmine Williamson 
 ## Date Created: 08/04/2025
 ##
-## Description: Make plots that show yearly occu estimates
+## Description: Make plots that show yearly occu estimates, by treatment and spp
 ##
 ## =================================================
 setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi-scale-occu-oss")
@@ -283,61 +283,7 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
   #year_treatment_preds_o <- year_treatment_preds
   
   
-  
 
-#### 2023-2024 Predictions for paper ----------------------------------------
-  
-  # i dont remember why i did this 
-  
-  # Average predictions across years 8 and 9 for each treatment
-  hb_avg <- year_treatment_preds_e[year_treatment_preds_e$treatment == "HB" & year_treatment_preds_e$year %in% c(8, 9), ]
-  hu_avg <- year_treatment_preds_e[year_treatment_preds_e$treatment == "HU" & year_treatment_preds_e$year %in% c(8, 9), ]
-  bu_avg <- year_treatment_preds_e[year_treatment_preds_e$treatment == "BU" & year_treatment_preds_e$year %in% c(8, 9), ]
-  uu_avg <- year_treatment_preds_e[year_treatment_preds_e$treatment == "UU" & year_treatment_preds_e$year %in% c(8, 9), ]
-  
-  # Calculate average predictions
-  hb_pred_avg <- mean(hb_avg$predicted)
-  hu_pred_avg <- mean(hu_avg$predicted)
-  bu_pred_avg <- mean(bu_avg$predicted)
-  uu_pred_avg <- mean(uu_avg$predicted)
-  
-  # Calculate average CI widths (for uncertainty estimation)
-  hb_ci_width <- mean(hb_avg$UCI - hb_avg$LCI)
-  hu_ci_width <- mean(hu_avg$UCI - hu_avg$LCI)
-  bu_ci_width <- mean(bu_avg$UCI - bu_avg$LCI)  
-  uu_ci_width <- mean(uu_avg$UCI - uu_avg$LCI)    
-  
-  
-#### Yearly trt plot - first try ----------------------------------------------- 
-
-    p2 <- ggplot(year_treatment_preds, aes(x = year, y = predicted, color = treatment,
-                                         shape = treatment)) +
-    geom_pointrange(aes(ymin = LCI, ymax = UCI), 
-                    position = position_dodge(width = 0.6),
-                    size = 0.8) +
-    labs(x = "Year", 
-         y = "Predicted Occupancy Probability",
-         title = "Occupancy Estimates by Year and Treatment - OSS") +
-    theme_minimal() +
-    theme(axis.text.x = element_text(size = 16),
-          axis.text.y = element_text(size = 16),
-          axis.title.x = element_text(size = 16),
-          axis.title.y = element_text(size = 16),
-          legend.position = "bottom",
-          legend.text = element_text(size = 16),
-          legend.title = element_text(size = 16),
-          plot.title = element_text(hjust = 0.5, face = "bold", size = 18),
-          panel.grid.minor = element_blank(),
-          panel.grid.major.x = element_blank()) +
-    scale_x_continuous(breaks = unique(year_treatment_preds$year))
-  
-  
-  #ggsave("figures/o-yearly-preds-shape.png", plot = p2, dpi = 300, bg = "white")
-  
-
-  
-  
-  
 #### Plot with custom dodge widths *Claude help---------------
 
 #ENES
