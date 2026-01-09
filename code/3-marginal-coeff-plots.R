@@ -454,7 +454,7 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
   DW_preds$cov_value  <- round(DW_preds$cov_zsc  * dw_sd  + dw_mean, 2)
 
   # add species
-  DW_preds_e <- DW_psi_preds
+  DW_preds_e <- DW_preds
   DW_preds_e$species <- "ENES"
 
 
@@ -734,7 +734,7 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
   # add back-transformed values to df (just in case i want them later)
   dw_mean  <- mean(dat$DW, na.rm = TRUE)
   dw_sd    <- sd(dat$DW, na.rm = TRUE)
-  DW_preds$cov_value  <- round(DW_psi_preds$cov_zsc  * dw_sd  + dw_mean, 2)
+  DW_preds$cov_value  <- round(DW_preds$cov_zsc  * dw_sd  + dw_mean, 2)
   
   # add species
   DW_preds_o <- DW_preds
@@ -866,14 +866,17 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
                                 color = species, fill = species)) +
     geom_line(linewidth = 0.8) +
     geom_ribbon(aes(ymin = LCI, ymax = UCI), alpha = 0.2, color = NA) +
-    facet_grid(species ~ covariate, scales = "free_x") +
+    facet_grid(species ~ covariate, scales = "free_x",
+               labeller = labeller(covariate = c("Latitude" = "Latitude (°N)",
+                                                 "Longitude" = "Longitude (°W)",
+                                                 "Elevation" = "Elevation (m)"))) +
     scale_color_manual(values = species_colors) +
     scale_fill_manual(values = species_colors) +
     facetted_pos_scales(
       x = list(
         covariate == "Latitude" ~ scale_x_continuous(breaks = c(44.6, 45.1)),
         covariate == "Longitude" ~ scale_x_continuous(breaks = c(-122.6, -122.3)),
-        covariate == "Elevation" ~ scale_x_continuous(breaks = c(750, 3200))
+        covariate == "Elevation" ~ scale_x_continuous(breaks = c(750, 2000, 3200))
       )
     ) +    labs(y = expression(bold("Occupancy ("*psi*")")), x = "") +
     theme_classic() +
@@ -894,10 +897,11 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
                                     color = species, fill = species)) +
     geom_line(linewidth = 0.8) +
     geom_ribbon(aes(ymin = LCI, ymax = UCI), alpha = 0.2, color = NA) +
-    facet_grid(species ~ covariate, scales = "free") +  # free both axes
+    facet_grid(species ~ covariate, scales = "free",
+           labeller = labeller(covariate = c("Downed Wood" = "Downed Wood (count)"))) +
     scale_color_manual(values = species_colors) +
     scale_fill_manual(values = species_colors) +
-    scale_x_continuous(n.breaks = 4) +  
+    scale_x_continuous(n.breaks = 5) +  
     labs(y = expression(bold("Subplot Use ("*theta*")")), x = "") +
     theme_classic() +
     theme(
@@ -918,15 +922,17 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
                                     color = species, fill = species)) +
     geom_line(linewidth = 0.8) +
     geom_ribbon(aes(ymin = LCI, ymax = UCI), alpha = 0.2, color = NA) +
-    facet_grid(species ~ covariate, scales = "free") +  # free both axes
+    facet_grid(species ~ covariate, scales = "free",
+               labeller = labeller(covariate = c("Temperature" = "Temperature (°C)"))) +
     scale_color_manual(values = species_colors) +
     scale_fill_manual(values = species_colors) +
-    scale_x_continuous(breaks = c(0, 15, 30)) +  
+    scale_x_continuous(n.breaks = 5) +  
+    #scale_x_continuous(breaks = c(0, 15, 30)) +  
     labs(y = expression(bold("Detection ("*italic(p)*")")), x = "") +
     theme_classic() +
     theme(
       strip.text.x = element_text(size = 10, face = "bold"),
-      strip.text.y = element_text(size = 10, face = "bold.italic"),
+      strip.text.y = element_blank(),
       strip.background.x = element_rect(fill = "white", color = "black", linewidth = 0.5),
       strip.background.y = element_blank(),
       axis.text.x = element_text(size = 8),
@@ -934,27 +940,32 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
       axis.title.y = element_text(size = 10, face = "bold"),
       panel.spacing.x = unit(0.3, "lines"),
       plot.margin = margin(t = 5, r = 5, b = 2, l = 5),
-      legend.position = "none"
+      legend.position = "bottom",
+      legend.title = element_blank(),  
+      legend.text = element_text(size = 10),
+      legend.key.spacing.x = unit(3, "cm")
     )
   
-  # Combine with patchwork - adjust widths so panels are roughly equal size
-  p_final <- p_psi + p_theta + p_detection + 
-    plot_layout(widths = c(3, 1, 1), nrow = 1)
   
+  
+  # Combine with patchwork
+  
+  p_final <- p_psi + p_theta + p_detection + 
+    #plot_layout(widths = c(3, 1, 1), nrow = 1)
+    plot_layout(ncol=1)
+  
+  p_final
   
   # Save
-  ggsave("figures/marginal-effects-combined.png", 
+  ggsave("figures/marginal-effects-combined-2.png", 
          plot = p_final,
-         width = 18, 
-         height = 9,
+         width = 14, 
+         height = 22,
          units = "cm",
          dpi = 600)
   
-  # ggsave("figures/marginal-effects-combined.pdf", 
-  #        plot = p_final,
-  #        width = 18, 
-  #        height = 9,
-  #        units = "cm")
+
+  
   
   
   
