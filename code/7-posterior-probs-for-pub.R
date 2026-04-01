@@ -46,6 +46,8 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
   
 
 #### Predicted occupancy for trts with uncertainty - ENES ----------------------
+
+## back transforming parameters of interest
   
   # Get number of posterior samples
   n.samples <- nrow(E2)
@@ -137,6 +139,9 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
   
 
 #### Beta values (cov effects) for pub with CI -----------------
+  
+## just the non-back-transformed version of the above parameter values
+## useful for reporting, not much else
   
 ## OSS 
   
