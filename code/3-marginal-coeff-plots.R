@@ -6,6 +6,7 @@
 ##
 ## Description: Visualize and interpret outputs for 
 ## multi-scale occupancy model, both spp, all-years dataset
+## added detection prob for each species at mean temp
 ##
 ## =================================================
 setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi-scale-occu-oss")
@@ -462,6 +463,7 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
   
   b <- E2
   dat <- e_covs
+  n.samples = nrow(b) # number of posterior samples
   
   r<- range(temp.3D)
   # create sequence along range
@@ -470,7 +472,7 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
   # create matrices to stick estimates in
   logit_temp = matrix(NA, n.samples, length(temp_data))
 
-  # theta predictions for enes
+  # alpha predictions for enes
   # Sample from posterior for the sequence of values for cov
   for (i in 1:n.samples){
     for (j in 1:length(temp_data)){
@@ -505,8 +507,24 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
   # add species
   temp_preds_e <- temp_preds
   temp_preds_e$species <- "ENES"
+  
+  
+  
+##### Detection probability ENES ------------------------------------------
+  
+  # posterior samples of intercept
+  alpha0_e <- E2[, "alpha0"]
+  
+  # convert from logit scale to probability
+  p_avg_e <- plogis(alpha0_e)
+  
+  mean(p_avg_e) # posterior mean detection probability
+  quantile(p_avg_e, c(0.025, 0.975)) # 95% credible interval
 
-
+  # 0.1610015
+  # 2.5%     97.5% 
+  # 0.1277433 0.1980939
+  
 ##### Marginal Psi Predictions Dataframe - OSS -------------------------------------------  
   
   b <- O2 
@@ -788,6 +806,21 @@ setwd("~/Library/CloudStorage/OneDrive-Personal/Documents/Academic/OSU/Git/multi
   # add species
   temp_preds_o <- temp_preds
   temp_preds_o$species <- "OSS"
+  
+##### Detection probability OSS ------------------------------------------
+  
+  # posterior samples of intercept
+  alpha0_o <- O2[, "alpha0"]
+  
+  # convert from logit scale to probability
+  p_avg_o <- plogis(alpha0_o)
+  
+  mean(p_avg_o) # posterior mean detection probability
+  quantile(p_avg_o, c(0.025, 0.975)) # 95% credible interval
+  
+  # 0.2517736
+  # 2.5%     97.5% 
+  # 0.1917336 0.3315254 
   
   
 ##### Plot ----------------------------------------------------------------------
